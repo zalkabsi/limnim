@@ -1,0 +1,41 @@
+{
+  "name": "refundcurve",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build --webpack",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test:unit": "vitest run tests/unit",
+    "test:integration": "vitest run tests/integration",
+    "test:e2e": "playwright test"
+  },
+  "dependencies": {
+    "decimal.js": "10.6.0",
+    "luxon": "3.7.2",
+    "next": "16.4.1",
+    "openai": "7.34.0",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "zod": "4.6.3"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.1",
+    "@types/luxon": "3.7.1",
+    "@types/node": "24.10.0",
+    "@types/react": "19.2.2",
+    "@types/react-dom": "19.2.2",
+    "@vitejs/plugin-react": "5.0.4",
+    "eslint": "9.39.5",
+    "eslint-config-next": "16.4.1",
+    "postcss": "8.5.6",
+    "tailwindcss": "4.3.0",
+    "@tailwindcss/postcss": "4.3.0",
+    "typescript": "6.0.3",
+    "vite": "7.1.12",
+    "vitest": "5.0.4"
+  }
+}
