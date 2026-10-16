@@ -9,7 +9,7 @@ Build mode: fast
 
 ## Slices
 
-- [ ] **1. Explore the sample booking on a working timeline**
+- [x] **1. Explore the sample booking on a working timeline**
   Becomes usable: The app runs locally; a traveler can load the clearly labeled Tokyo sample, move through both cancellation thresholds, see the refund and penalty recalculate, and inspect the supporting policy excerpts.
   Why now: This bootstraps the project while proving the deterministic financial timeline and sample path, the central visible behavior. Feedback here can still shape the input and live-analysis experience.
   PRD ref: `prd.md > The Core Journey` (steps 1, 4–5), `prd.md > Screens and Layout`, `prd.md > Financial Outcome`, `prd.md > Sample and Timeline`.
