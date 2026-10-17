@@ -33,7 +33,7 @@ test("the Tokyo sample updates its estimate at exact policy boundaries", async (
 });
 
 test("live policy analysis uses verified rules while keeping the booking total in the browser", async ({ page }) => {
-  const policyText = "Cancellation is free before November 20, 2026 at 6:00 PM. A 50% penalty begins at that time. A 100% penalty begins November 24, 2026 at 3:00 PM JST.";
+  const policyText = "Cancellation is free before November 20, 2026 at 6:00 PM. A 50% penalty begins at that time. From November 24, 2026 at 3:00 PM JST the entire booking is non-refundable.";
   let receivedBody: unknown;
   await page.route("**/api/analyze", async (route) => {
     receivedBody = route.request().postDataJSON();
@@ -56,8 +56,8 @@ test("live policy analysis uses verified rules while keeping the booking total i
               id: "penalty-100",
               deadlineLocal: "2026-11-24T15:00",
               penaltyPercent: "100",
-              evidenceQuote: "A 100% penalty begins November 24, 2026 at 3:00 PM JST.",
-              interpretation: "The full booking amount becomes the penalty at the second deadline.",
+              evidenceQuote: "From November 24, 2026 at 3:00 PM JST the entire booking is non-refundable.",
+              interpretation: "The entire booking becomes non-refundable at the second deadline.",
               status: "supported",
               issue: "",
             },
@@ -148,4 +148,62 @@ test("the timeline supports keyboard changes and fits a narrow screen", async ({
   await expect(page.getByTestId("refund-amount")).toHaveText("$600.00");
   await expect(page.getByTestId("penalty-amount")).toHaveText("$600.00");
   await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+});
+
+test("live results label the final deadline when no check-in is entered", async ({ page }) => {
+  const policyText = "A 50% penalty applies from November 20, 2026 at 6:00 PM.";
+  await page.route("**/api/analyze", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        analysis: {
+          rules: [{
+            id: "single-deadline",
+            deadlineLocal: "2026-11-20T18:00",
+            penaltyPercent: "50",
+            evidenceQuote: policyText,
+            interpretation: "A 50% penalty starts at this deadline.",
+            status: "supported",
+            issue: "",
+          }],
+          unresolvedIssues: [],
+        },
+      }),
+    });
+  });
+
+  await page.goto("/");
+  await page.locator("#policy-text").fill(policyText);
+  await page.locator("#booking-amount").fill("1200");
+  await page.locator("#property-zone").fill("Asia/Tokyo");
+  await page.getByRole("button", { name: "Analyze policy" }).click();
+
+  await expect(page.getByRole("heading", { name: "Your cancellation estimate" })).toBeVisible();
+  await expect(page.getByText(/^Last supported deadline ·/)).toBeVisible();
+});
+
+test("loading the sample cancels an in-flight live analysis", async ({ page }) => {
+  const policyText = "A 50% penalty applies from November 20, 2026 at 6:00 PM.";
+  await page.route("**/api/analyze", async (route) => {
+    await new Promise((resolve) => setTimeout(resolve, 250));
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ analysis: { rules: [], unresolvedIssues: ["No explicit cancellation rule."] } }),
+    }).catch(() => undefined);
+  });
+
+  await page.goto("/");
+  await page.locator("#policy-text").fill(policyText);
+  await page.locator("#booking-amount").fill("1200");
+  await page.locator("#property-zone").fill("Asia/Tokyo");
+  await page.getByRole("button", { name: "Analyze policy" }).click();
+  await expect(page.getByText(/Reading the policy and checking its quoted deadlines/)).toBeVisible();
+  await page.getByRole("button", { name: /Try sample booking/i }).click();
+  await page.waitForTimeout(350);
+
+  await expect(page.getByRole("heading", { name: "Tokyo sample booking" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Your cancellation estimate" })).toHaveCount(0);
+  await expect(page.getByTestId("refund-amount")).toHaveText("$1,200.00");
 });

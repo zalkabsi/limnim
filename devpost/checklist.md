@@ -45,7 +45,7 @@ Build mode: fast
 - [ ] Integrated live core journey explored — after slice 2, so extraction/evidence feedback can shape final hardening
 - [ ] Final kick-the-tires exploration and feedback completed — after slice 3
 
-Progress note: The learner asked to continue past the first two hands-on checkpoints without reporting observations. The sample and integrated flows remain unreviewed by the learner. Slice 3 is mechanically verified and committed as `557601d`: lint, typecheck, 18 unit tests, 8 integration tests, 4 browser flows, and the production build passed. This workspace has no configured OpenAI API key, so live provider calls are covered by mocked tests rather than exercised against OpenAI.
+Progress note: The learner asked to continue past the first two hands-on checkpoints without reporting observations. The sample and integrated flows remain unreviewed by the learner. The original slice 3 commit (`557601d`) passed lint, typecheck, 18 unit tests, 8 integration tests, 4 browser flows, and the production build. The current review reran all checks after hardening: lint, typecheck, 28 unit tests, 10 integration tests, 6 browser flows, and the production build passed. This workspace has no configured OpenAI API key, so live provider calls are covered by mocked tests rather than exercised against OpenAI.
 
 ## Final Review
 
@@ -69,3 +69,28 @@ Activity mode: Brief evidence-based recap with an offline reference map; no inte
 - Use Next's Webpack production builder and TypeScript compiler API — this sandbox blocks Turbopack's worker port and detached TypeScript CLI output, while both work through supported Next configuration paths; the app still uses the normal Next dev server.
 - Cross-check extracted deadlines against the exact quote's date, unambiguous time, percentage, and named zone; an exact quote by itself does not prove that the model mapped its values correctly.
 - Withhold the live estimate if any policy rule is unresolved or conflicts with another rule, since partial thresholds could omit a financial condition that changes the result.
+
+## Official Hackathon Submission Requirements
+
+Checked against the [official rules](https://learn-ai-basics.devpost.com/rules), [challenge page](https://learn-ai-basics.devpost.com/), and [Devpost's submission-form update](https://learn-ai-basics.devpost.com/updates/46821-two-new-questions-on-the-submission-form) on October 17, 2026. Submission closes **October 26, 2026 at 5:00 PM EDT**; judging ends **October 30, 2026 at 5:00 PM EDT**.
+
+### Project and repository
+
+- [x] Working project with an end-to-end function; local setup and demo instructions are in `README.md`.
+- [x] Planning documents are committed under `devpost/`: `scope.md`, `prd.md`, and `spec.md`.
+- [x] Open-source `LICENSE` file is present (MIT).
+- [ ] A public GitHub, GitLab, or Bitbucket repository is accessible to judges and contains the finished source, assets, instructions, and planning documents. The configured remote was not publicly accessible when checked; confirm it is public after publishing.
+- [ ] The repository page visibly detects/displays the open-source license.
+- [ ] Put the public repository URL in Devpost's **Try it out** field.
+
+### Submission materials and form
+
+- [ ] Write the English project description for the entry. It must explain the project features/functionality; the challenge page also asks what it does, who it is for, and what the entrant learned.
+- [ ] Record and publicly upload a **1 to under 3 minute** demo video to YouTube or Vimeo. It must show the app working on its intended platform and avoid third-party trademarks or copyrighted music/material unless permission is held.
+- [ ] Include the public video URL in the submission form.
+- [ ] Answer the required short-form question describing how the Devpost Learn Skill Pack was used.
+- [ ] Complete the required age-of-majority checkbox.
+- [ ] Register for the hackathon and confirm entrant eligibility, original-work ownership, and any required team authorization.
+- [ ] Submit all required Devpost fields before the deadline. Keep the repo/video available without charge or access restrictions through judging.
+
+The rules require a public repository and demo video; they do not list deployment of a public website as a submission requirement. Submission eligibility and the required personal attestations must be completed by the entrant.

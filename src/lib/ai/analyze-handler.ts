@@ -14,25 +14,80 @@ type AnalyzeDependencies = {
   extract: (arguments_: ExtractArguments) => Promise<string>;
 };
 
+const MAX_REQUEST_BODY_BYTES = 100_000;
+
+type JsonBodyResult =
+  | { ok: true; body: unknown }
+  | { ok: false; status: 400 | 413; code: string; message: string };
+
 function errorResponse(status: number, code: string, message: string) {
   return Response.json({ error: { code, message } }, { status });
 }
 
+async function readJsonBody(request: Request): Promise<JsonBodyResult> {
+  const contentLength = request.headers.get("content-length");
+  if (contentLength !== null) {
+    const declaredLength = Number(contentLength);
+    if (Number.isSafeInteger(declaredLength) && declaredLength > MAX_REQUEST_BODY_BYTES) {
+      return {
+        ok: false,
+        status: 413,
+        code: "request_too_large",
+        message: "Policy text must be 15,000 characters or fewer.",
+      };
+    }
+  }
+
+  const reader = request.body?.getReader();
+  if (!reader) {
+    return { ok: false, status: 400, code: "invalid_json", message: "The request was not valid JSON." };
+  }
+
+  const chunks: Uint8Array[] = [];
+  let totalBytes = 0;
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      totalBytes += value.byteLength;
+      if (totalBytes > MAX_REQUEST_BODY_BYTES) {
+        await reader.cancel().catch(() => undefined);
+        return {
+          ok: false,
+          status: 413,
+          code: "request_too_large",
+          message: "Policy text must be 15,000 characters or fewer.",
+        };
+      }
+      chunks.push(value);
+    }
+  } catch {
+    return { ok: false, status: 400, code: "invalid_json", message: "The request was not valid JSON." };
+  } finally {
+    reader.releaseLock();
+  }
+
+  const bytes = new Uint8Array(totalBytes);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+
+  try {
+    const text = new TextDecoder("utf-8", { fatal: true }).decode(bytes);
+    return { ok: true, body: JSON.parse(text) as unknown };
+  } catch {
+    return { ok: false, status: 400, code: "invalid_json", message: "The request was not valid JSON." };
+  }
+}
+
 export function createAnalyzeHandler({ getApiKey, extract }: AnalyzeDependencies) {
   return async function POST(request: Request): Promise<Response> {
-    const declaredLength = Number(request.headers.get("content-length") ?? 0);
-    if (declaredLength > 32_000) {
-      return errorResponse(413, "request_too_large", "Policy text must be 15,000 characters or fewer.");
-    }
+    const parsedBody = await readJsonBody(request);
+    if (!parsedBody.ok) return errorResponse(parsedBody.status, parsedBody.code, parsedBody.message);
 
-    let body: unknown;
-    try {
-      body = await request.json();
-    } catch {
-      return errorResponse(400, "invalid_json", "The request was not valid JSON.");
-    }
-
-    const input = AnalyzeRequestSchema.safeParse(body);
+    const input = AnalyzeRequestSchema.safeParse(parsedBody.body);
     if (!input.success) {
       const message = input.error.issues[0]?.message ?? "Add policy text and a property time zone.";
       return errorResponse(400, "invalid_request", message);

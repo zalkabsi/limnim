@@ -84,41 +84,89 @@ function clockTimes(text: string): ClockTime[] {
   return times;
 }
 
-function quotedDeadlineMatches(rule: PolicyRule): boolean {
+function findQuotedDeadline(rule: PolicyRule): { date: Mention; time: ClockTime } | null {
   const expected = rule.deadlineLocal.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/);
-  if (!expected) return false;
+  if (!expected) return null;
   const expectedParts = expected.slice(1).map(Number);
   const dates = dateMentions(rule.evidenceQuote);
   const times = clockTimes(rule.evidenceQuote);
 
-  return dates.some((date) => {
-    if (date.year !== expectedParts[0] || date.month !== expectedParts[1] || date.day !== expectedParts[2]) return false;
+  for (const date of dates) {
+    if (date.year !== expectedParts[0] || date.month !== expectedParts[1] || date.day !== expectedParts[2]) continue;
     const nearbyTimes = times
       .map((time) => ({ time, distance: time.end < date.start ? date.start - time.end : time.start > date.end ? time.start - date.end : 0 }))
       .filter(({ distance }) => distance <= 48)
       .sort((left, right) => left.distance - right.distance);
     const closest = nearbyTimes[0];
-    if (!closest || !closest.time.unambiguous || (nearbyTimes[1] && nearbyTimes[1].distance === closest.distance)) return false;
-    return closest.time.hour === expectedParts[3] && closest.time.minute === expectedParts[4];
-  });
+    if (!closest || !closest.time.unambiguous || (nearbyTimes[1] && nearbyTimes[1].distance === closest.distance)) continue;
+    if (closest.time.hour === expectedParts[3] && closest.time.minute === expectedParts[4]) {
+      return { date, time: closest.time };
+    }
+  }
+  return null;
+}
+
+function isWholeBookingNonRefundable(quote: string): boolean {
+  const negated = /\b(?:not|never|isn't|is not)\s+(?:fully\s+)?non[- ]?refundable\b/i.test(quote);
+  const nonRefundable = /\bnon[- ]?refundable\b|\bno refunds?\b|\bno refund (?:is|will be|shall be)?\b/i.test(quote);
+  return nonRefundable && !negated;
+}
+
+function penaltyConsequencePosition(rule: PolicyRule): number | null {
+  const quote = rule.evidenceQuote;
+  const rate = Number(rule.penaltyPercent);
+  const partialScope = /\bdeposit\b|\bper[- ]?(?:room|night|person)\b|\b(?:first|last|one|each|remaining)\s+nights?\b|\brooms?\b|\btaxes?\b|\bfixed fee\b|[$€£]\s*\d/i.test(quote);
+  if (partialScope) return null;
+  const percentages = [...quote.matchAll(/\b(\d+(?:\.\d+)?)\s*(?:%|percent(?:age)?\b)/gi)];
+  if (percentages.some((match) => Number(match[1]) !== rate)) return null;
+
+  if (rate === 100) {
+    const nonRefundable = quote.match(/\bnon[- ]?refundable\b|\bno refunds?\b|\bno refund (?:is|will be|shall be)?\b/i);
+    const fullAmount = quote.match(/\b100\s*(?:%|percent(?:age)?)\b.{0,50}\b(?:entire|whole|full)\s+(?:booking|reservation|amount|total)\b/i);
+    if (isWholeBookingNonRefundable(quote) && nonRefundable) return nonRefundable.index ?? null;
+    return fullAmount?.index ?? null;
+  }
+  if (rate === 0) {
+    const freeCancellation = quote.match(/\bfree cancellation\b|\bno cancellation fee\b|\bno penalty\b|\bfully refundable\b/i);
+    return freeCancellation?.index ?? null;
+  }
+
+  const matchingPercent = percentages.find((match) => Number(match[1]) === rate);
+  if (!matchingPercent) return null;
+  const penaltyCuePattern = /\b(?:penalt(?:y|ies)|fees?|charg(?:e|es|ed)|forfeit(?:ed|ure)?|retain(?:ed|s)?|deduct(?:ed|ion)?|los(?:e|t)|withheld)\b/gi;
+  const penaltyCues = [...quote.matchAll(penaltyCuePattern)];
+  const penaltyCue = penaltyCues
+    .map((match) => ({ index: match.index ?? 0, distance: Math.abs((match.index ?? 0) - (matchingPercent.index ?? 0)) }))
+    .filter(({ distance }) => distance <= 48)
+    .sort((left, right) => left.distance - right.distance)[0];
+  return penaltyCue ? matchingPercent.index ?? null : null;
 }
 
 function percentageIsSupported(rule: PolicyRule): boolean {
-  const rate = Number(rule.penaltyPercent);
-  const partialScope = /\bdeposit\b|\bper[- ]?(?:room|night|person)\b|\b(?:first|last|one|each|remaining)\s+nights?\b|\brooms?\b|\btaxes?\b|\bfixed fee\b|[$€£]\s*\d/i.test(rule.evidenceQuote);
-  if (partialScope) return false;
-  const percentages = [...rule.evidenceQuote.matchAll(/\b(\d+(?:\.\d+)?)\s*(?:%|percent(?:age)?\b)/gi)].map((match) => Number(match[1]));
-  if (percentages.some((quoted) => quoted !== rate)) return false;
-  if (percentages.some((quoted) => quoted === rate)) return true;
+  return penaltyConsequencePosition(rule) !== null;
+}
 
-  if (rate === 100) {
-    const wholeBookingIsNonRefundable = /\bnon[- ]?refundable\b|\bno refunds?\b|\bno refund (?:is|will be|shall be)?\b/i.test(rule.evidenceQuote);
-    return wholeBookingIsNonRefundable;
-  }
-  if (rate === 0) {
-    return /\bfree cancellation\b|\bno cancellation fee\b|\bno penalty\b|\bfully refundable\b/i.test(rule.evidenceQuote);
-  }
-  return false;
+function consequenceMatchesDeadline(
+  rule: PolicyRule,
+  deadline: { date: Mention; time: ClockTime },
+  consequencePosition: number,
+): boolean {
+  const quote = rule.evidenceQuote;
+  const deadlineStart = Math.min(deadline.date.start, deadline.time.start);
+  const deadlineEnd = Math.max(deadline.date.end, deadline.time.end);
+  const deadlineCenter = (deadlineStart + deadlineEnd) / 2;
+  const relationStart = Math.max(0, Math.min(deadlineEnd, consequencePosition));
+  const relationEnd = Math.min(quote.length, Math.max(deadlineStart, consequencePosition) + 80);
+  if (/\b(?:before|until|prior to|no later than|by)\b/i.test(quote.slice(relationStart, relationEnd))) return false;
+  const linkTerms = [
+    ...[...quote.matchAll(/\b(?:on\s+or\s+after|or\s+after|after|thereafter|or\s+later|from|starting|beginning|begins?|starts?|takes effect|effective(?:\s+from)?|as of|on|until|before|prior to|no later than|by)\b/gi)]
+      .map((match) => ({ index: match.index ?? 0, kind: /^(?:until|before|prior to|no later than|by)$/i.test(match[0]) ? "before" as const : "after" as const })),
+  ];
+  const closest = linkTerms
+    .map((term) => ({ ...term, distance: Math.abs(term.index - consequencePosition) }))
+    .filter((term) => term.distance <= 100 && Math.abs(term.index - deadlineCenter) <= 100)
+    .sort((left, right) => left.distance - right.distance)[0];
+  return closest?.kind === "after";
 }
 
 const zoneTerms: Record<string, { zones: string[]; offsetMinutes: number }> = {
@@ -139,8 +187,15 @@ const zoneTerms: Record<string, { zones: string[]; offsetMinutes: number }> = {
   AEST: { zones: ["Australia/Sydney", "Australia/Melbourne"], offsetMinutes: 600 },
   AEDT: { zones: ["Australia/Sydney", "Australia/Melbourne"], offsetMinutes: 660 },
 };
+const unambiguousZoneTokens = new Set(["UTC", "GMT", "JST"]);
 
 function explicitZoneMatches(rule: PolicyRule, propertyTimeZone: string): boolean {
+  const abbreviationsAfterTime = clockTimes(rule.evidenceQuote)
+    .map((time) => rule.evidenceQuote.slice(time.end).match(/^\s+([A-Z]{2,5})\b/)?.[1])
+    .filter((abbreviation): abbreviation is string => Boolean(abbreviation))
+    .map((abbreviation) => abbreviation.toUpperCase());
+  if (abbreviationsAfterTime.some((abbreviation) => !(abbreviation in zoneTerms))) return false;
+
   const ianaZones = [...rule.evidenceQuote.matchAll(/\b(?:[A-Za-z_+-]+\/)+[A-Za-z_+-]+\b/g)].map((match) => match[0]);
   if (ianaZones.some((zone) => zone !== propertyTimeZone)) return false;
 
@@ -155,6 +210,7 @@ function explicitZoneMatches(rule: PolicyRule, propertyTimeZone: string): boolea
   const tokens = rule.evidenceQuote.match(/\b(?:UTC|GMT|JST|PST|PDT|MST|MDT|CST|CDT|EST|EDT|CET|CEST|BST|AEST|AEDT)\b/gi) ?? [];
   const local = DateTime.fromISO(rule.deadlineLocal, { zone: propertyTimeZone });
   for (const token of tokens) {
+    if (!unambiguousZoneTokens.has(token.toUpperCase())) return false;
     if ((token.toUpperCase() === "UTC" || token.toUpperCase() === "GMT") && offset) continue;
     const config = zoneTerms[token.toUpperCase()];
     if (!config || !config.zones.includes(propertyTimeZone) || !local.isValid || local.offset !== config.offsetMinutes) return false;
@@ -163,11 +219,16 @@ function explicitZoneMatches(rule: PolicyRule, propertyTimeZone: string): boolea
 }
 
 export function supportedRuleEvidenceIssue(rule: PolicyRule, propertyTimeZone: string): string | null {
-  if (!quotedDeadlineMatches(rule)) {
+  const deadline = findQuotedDeadline(rule);
+  if (!deadline) {
     return "The quoted text does not confirm the complete date and time shown for this deadline.";
   }
   if (!percentageIsSupported(rule)) {
-    return "The quoted text does not confirm this percentage for the full booking amount.";
+    return "The quoted text does not confirm this percentage as a penalty for the full booking amount.";
+  }
+  const consequencePosition = penaltyConsequencePosition(rule);
+  if (consequencePosition === null || !consequenceMatchesDeadline(rule, deadline, consequencePosition)) {
+    return "The quoted text does not clearly tie this penalty to the deadline shown.";
   }
   if (!explicitZoneMatches(rule, propertyTimeZone)) {
     return "The quoted time zone or UTC offset does not match the property's time zone.";

@@ -81,11 +81,11 @@ Loads the fictional $1,200 USD Tokyo booking and its prevalidated two-threshold 
 
 ### Analysis API Route
 
-`POST /api/analyze` validates the live request, calls OpenAI on the server, checks the response, and returns supported rules plus unresolved issues. It does not receive booking amount or currency. It never logs policy contents. Implements `prd.md > Analysis and Rule Evidence` and `prd.md > States and Boundaries`.
+`POST /api/analyze` enforces a 100 KB streamed request-body cap and a 15,000-character policy limit, validates the live request, calls OpenAI on the server, checks the response, and returns supported rules plus unresolved issues. The provider response is capped at 12,000 output tokens. The route does not receive booking amount or currency and never logs policy contents. Implements `prd.md > Analysis and Rule Evidence` and `prd.md > States and Boundaries`.
 
 ### Extraction Prompt and Schema
 
-Defines the supported policy shape and strict structured response. Policy text is quoted source material, not instructions: the extraction prompt explicitly says to ignore instructions embedded in it. The schema returns candidate local deadlines, penalty percentages, verbatim evidence quotes, plain-language interpretations, and clarification status. The server checks that each quote is an exact substring, then cross-checks its explicit date, unambiguous clock time, penalty, and any named time zone against the candidate before allowing the rule to be calculated. Implements `prd.md > Analysis and Rule Evidence`.
+Defines the supported policy shape and strict, size-bounded structured response. Policy text is quoted source material, not instructions: the extraction prompt explicitly says to ignore instructions embedded in it. The schema returns candidate local deadlines, penalty percentages, verbatim evidence quotes, plain-language interpretations, and clarification status. The server checks that each quote is an exact substring, then cross-checks its explicit date, unambiguous clock time, penalty wording, relationship between penalty and deadline, and any named time zone against the candidate before allowing the rule to be calculated. Refund percentages, reversed cutoff relationships, ambiguous/unsupported time-zone abbreviations, and penalties that are not explicitly for the full booking remain unresolved. Implements `prd.md > Analysis and Rule Evidence`.
 
 If any policy rule remains unresolved or the supported deadlines conflict, the live summary and timeline are withheld until the policy can support a complete calculation. A whole-booking non-refundable condition may map to a 100% penalty when the quoted text makes that scope explicit; deposits, per-night or per-room charges, and other partial amounts remain unresolved.
 

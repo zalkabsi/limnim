@@ -54,6 +54,24 @@ describe("supported rule evidence", () => {
     }), "Asia/Tokyo")).toMatch(/does not confirm this percentage/i);
   });
 
+  it("rejects a refund percentage presented as a cancellation penalty", () => {
+    expect(supportedRuleEvidenceIssue(rule({
+      evidenceQuote: "Cancellations on or after November 20, 2026 at 6:00 PM receive a 50% refund.",
+    }), "Asia/Tokyo")).toMatch(/as a penalty/i);
+  });
+
+  it("rejects a penalty attached to cancellations before the proposed deadline", () => {
+    expect(supportedRuleEvidenceIssue(rule({
+      evidenceQuote: "A 50% penalty applies to cancellations before November 20, 2026 at 6:00 PM.",
+    }), "Asia/Tokyo")).toMatch(/tie this penalty to the deadline/i);
+  });
+
+  it("rejects a quote that mentions a penalty and deadline without linking them", () => {
+    expect(supportedRuleEvidenceIssue(rule({
+      evidenceQuote: "A 50% penalty applies. The deadline is November 20, 2026 at 6:00 PM.",
+    }), "Asia/Tokyo")).toMatch(/tie this penalty to the deadline/i);
+  });
+
   it("allows a whole-booking non-refundable threshold but rejects partial scopes", () => {
     const nonRefundable = rule({
       deadlineLocal: "2026-11-20T18:00",
@@ -74,6 +92,15 @@ describe("supported rule evidence", () => {
   it("rejects a time-zone abbreviation that conflicts with the property", () => {
     expect(supportedRuleEvidenceIssue(rule({
       evidenceQuote: "A 50% penalty applies from November 20, 2026 at 6:00 PM PST.",
+    }), "Asia/Tokyo")).toMatch(/time zone or UTC offset/i);
+  });
+
+  it("rejects ambiguous and unrecognized time-zone abbreviations", () => {
+    expect(supportedRuleEvidenceIssue(rule({
+      evidenceQuote: "A 50% penalty applies from November 20, 2026 at 6:00 PM CST.",
+    }), "America/Chicago")).toMatch(/time zone or UTC offset/i);
+    expect(supportedRuleEvidenceIssue(rule({
+      evidenceQuote: "A 50% penalty applies from November 20, 2026 at 6:00 PM IST.",
     }), "Asia/Tokyo")).toMatch(/time zone or UTC offset/i);
   });
 });

@@ -122,4 +122,29 @@ describe("POST /api/analyze", () => {
     expect(response.status).toBe(400);
     expect(extract).not.toHaveBeenCalled();
   });
+
+  it("accepts the full 15,000-character policy limit when UTF-8 text is multibyte", async () => {
+    const extract = vi.fn(async () => JSON.stringify({ rules: [], unresolvedIssues: ["No explicit cancellation rule."] }));
+    const handler = createAnalyzeHandler({ getApiKey: () => "test-key", extract });
+    const longPolicy = "東".repeat(15_000);
+    const response = await handler(request({ policyText: longPolicy, propertyTimeZone: "Asia/Tokyo" }));
+
+    expect(response.status).toBe(200);
+    expect(extract).toHaveBeenCalledOnce();
+  });
+
+  it("rejects an oversized streamed body even when it has no Content-Length header", async () => {
+    const extract = vi.fn(async () => JSON.stringify(supportedOutput));
+    const handler = createAnalyzeHandler({ getApiKey: () => "test-key", extract });
+    const body = JSON.stringify({ policyText: "x".repeat(100_001), propertyTimeZone: "Asia/Tokyo" });
+    const streamedRequest = new Request("http://localhost/api/analyze", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body,
+    });
+    const response = await handler(streamedRequest);
+
+    expect(response.status).toBe(413);
+    expect(extract).not.toHaveBeenCalled();
+  });
 });

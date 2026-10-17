@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { BookingForm } from "@/components/booking-form";
 import { FinancialSummary } from "@/components/financial-summary";
 import { PolicyEvidence } from "@/components/policy-evidence";
@@ -28,6 +28,7 @@ type LiveResult = {
   isCalculable: boolean;
   minMs: number;
   maxMs: number;
+  endLabel: string;
   selectedMs: number;
 };
 
@@ -39,6 +40,7 @@ function apiErrorMessage(payload: unknown): string | null {
 }
 
 export function PolicyWorkspace() {
+  const activeAnalysisRef = useRef<AbortController | null>(null);
   const [sampleLoaded, setSampleLoaded] = useState(false);
   const [selectedMs, setSelectedMs] = useState(sampleMin);
   const [liveResult, setLiveResult] = useState<LiveResult | null>(null);
@@ -57,11 +59,15 @@ export function PolicyWorkspace() {
     setLiveResult(null);
     setAnalysisError(null);
     setIsAnalyzing(true);
+    activeAnalysisRef.current?.abort();
+    const controller = new AbortController();
+    activeAnalysisRef.current = controller;
 
     try {
       const response = await fetch("/api/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        signal: controller.signal,
         // Amount and currency stay in this component and are never sent to the API.
         body: JSON.stringify({ policyText, propertyTimeZone: bookingCheck.data.propertyTimeZone }),
       });
@@ -94,6 +100,7 @@ export function PolicyWorkspace() {
           isCalculable: false,
           minMs: 0,
           maxMs: 0,
+          endLabel: "Last supported deadline",
           selectedMs: 0,
         });
         return;
@@ -116,6 +123,9 @@ export function PolicyWorkspace() {
       const proposedMin = firstRule.deadlineMs - 24 * 60 * 60 * 1000;
       const maxMs = validCheckIn !== null && validCheckIn > lastRule.deadlineMs ? validCheckIn : lastRule.deadlineMs;
       const minMs = Math.min(proposedMin, maxMs);
+      const endLabel = validCheckIn !== null && validCheckIn > lastRule.deadlineMs
+        ? "Check-in"
+        : "Last supported deadline";
       setLiveResult({
         booking: bookingCheck.data,
         analysis: displayAnalysis,
@@ -125,13 +135,29 @@ export function PolicyWorkspace() {
         isCalculable: resolved.unresolvedIssues.length === 0,
         minMs,
         maxMs,
+        endLabel,
         selectedMs: minMs,
       });
     } catch (error) {
-      setAnalysisError(error instanceof Error ? error.message : "We couldn't analyze this policy. Check your connection and try again.");
+      if (!controller.signal.aborted) {
+        setAnalysisError(error instanceof Error ? error.message : "We couldn't analyze this policy. Check your connection and try again.");
+      }
     } finally {
-      setIsAnalyzing(false);
+      if (activeAnalysisRef.current === controller) {
+        activeAnalysisRef.current = null;
+        setIsAnalyzing(false);
+      }
     }
+  }
+
+  function loadSample() {
+    activeAnalysisRef.current?.abort();
+    activeAnalysisRef.current = null;
+    setIsAnalyzing(false);
+    setLiveResult(null);
+    setAnalysisError(null);
+    setSelectedMs(sampleMin);
+    setSampleLoaded(true);
   }
 
   return (
@@ -170,12 +196,7 @@ export function PolicyWorkspace() {
             <h2>See how the curve works</h2>
             <p>A fictional Tokyo hotel stay with two cancellation deadlines. Explore the exact moment the potential refund changes.</p>
           </div>
-          <SampleButton onClick={() => {
-            setLiveResult(null);
-            setAnalysisError(null);
-            setSelectedMs(sampleMin);
-            setSampleLoaded(true);
-          }} />
+          <SampleButton onClick={loadSample} />
         </section>
 
         {sampleLoaded && (
@@ -201,6 +222,7 @@ export function PolicyWorkspace() {
               onChange={setSelectedMs}
               minMs={sampleMin}
               maxMs={sampleMax}
+              endLabel="Check-in"
               outcome={outcome}
             />
             <PolicyEvidence rules={tokyoAnalysis.rules} sourceLabel="Quoted from the sample policy" />
@@ -238,6 +260,7 @@ export function PolicyWorkspace() {
                     onChange={(value) => setLiveResult((current) => current ? { ...current, selectedMs: value } : current)}
                     minMs={liveResult.minMs}
                     maxMs={liveResult.maxMs}
+                    endLabel={liveResult.endLabel}
                     outcome={liveOutcome}
                   />
                 </>

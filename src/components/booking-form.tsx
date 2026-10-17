@@ -2,9 +2,8 @@
 
 import { useState, type FormEvent } from "react";
 import { Info } from "luxon";
-import { BookingInputSchema, type BookingInput } from "@/lib/validation/booking";
-
-const currencies = ["USD", "EUR", "GBP", "CAD", "AUD", "JPY", "SGD", "NZD"];
+import { currencyFractionDigits } from "@/lib/calculations/money";
+import { BookingInputSchema, SUPPORTED_CURRENCIES, type BookingInput } from "@/lib/validation/booking";
 
 export function BookingForm({
   isAnalyzing,
@@ -21,6 +20,7 @@ export function BookingForm({
   const [propertyTimeZone, setPropertyTimeZone] = useState("");
   const [checkInLocal, setCheckInLocal] = useState("");
   const [validationError, setValidationError] = useState<string | null>(null);
+  const amountStep = String(10 ** -currencyFractionDigits(currency));
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -69,12 +69,12 @@ export function BookingForm({
       <div className="form-grid">
         <label className="form-field" htmlFor="booking-amount">
           <span>Booking total</span>
-          <input id="booking-amount" name="amount" type="number" min="0.01" step="0.01" placeholder="1,200.00" value={amount} onChange={(event) => setAmount(event.currentTarget.value)} required />
+          <input id="booking-amount" name="amount" type="number" min={amountStep} max="999999999999" step={amountStep} placeholder="1,200.00" value={amount} onChange={(event) => setAmount(event.currentTarget.value)} required />
         </label>
         <label className="form-field" htmlFor="booking-currency">
           <span>Currency</span>
           <select id="booking-currency" name="currency" value={currency} onChange={(event) => setCurrency(event.currentTarget.value)}>
-            {currencies.map((code) => <option key={code} value={code}>{code}</option>)}
+            {SUPPORTED_CURRENCIES.map((code) => <option key={code} value={code}>{code}</option>)}
           </select>
         </label>
         <label className="form-field" htmlFor="property-zone">

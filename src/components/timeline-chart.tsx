@@ -24,6 +24,7 @@ export function TimelineChart({
   onChange,
   minMs,
   maxMs,
+  endLabel,
   outcome,
 }: {
   booking: Booking;
@@ -32,6 +33,7 @@ export function TimelineChart({
   onChange: (value: number) => void;
   minMs: number;
   maxMs: number;
+  endLabel: string;
   outcome: FinancialOutcome;
 }) {
   const visibleRules = rules.filter((rule) => rule.deadlineMs > minMs && rule.deadlineMs < maxMs);
@@ -115,7 +117,7 @@ export function TimelineChart({
       />
       <div className="range-caption" aria-hidden="true">
         <span>{formatPropertyTime(minMs, booking.propertyTimeZone)}</span>
-        <span>Check-in · {formatPropertyTime(maxMs, booking.propertyTimeZone)}</span>
+        <span>{endLabel} · {formatPropertyTime(maxMs, booking.propertyTimeZone)}</span>
       </div>
       <p className="timeline-helper">Move the control or use the arrow keys to see the estimate change at each policy deadline.</p>
     </section>
