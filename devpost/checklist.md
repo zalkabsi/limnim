@@ -29,7 +29,7 @@ Build mode: fast
   Learner check: With `OPENAI_API_KEY` set locally, submit a short policy with two explicit percentage deadlines and inspect its evidence and timeline. If no key is configured, submit once to see the key setup guidance, then use the sample to confirm the rest of the app still works.
   Commit: `Add evidence-backed live policy analysis`
 
-- [ ] **3. Make uncertain cases clear and finish the responsive experience**
+- [x] **3. Make uncertain cases clear and finish the responsive experience**
   Becomes usable: Unsupported or inconsistent policies, missing details, and invalid/ambiguous local times leave calculations unresolved with a plain explanation; the full workspace remains clear on small screens and by keyboard.
   Why now: The central live journey is already usable and reviewable. This slice finishes the approved safety boundaries and accessibility details without delaying feedback on the core extraction flow.
   PRD ref: `prd.md > Analysis and Rule Evidence`, `prd.md > Financial Outcome`, `prd.md > Look and Feel`, `prd.md > States and Boundaries`.
@@ -45,7 +45,7 @@ Build mode: fast
 - [ ] Integrated live core journey explored — after slice 2, so extraction/evidence feedback can shape final hardening
 - [ ] Final kick-the-tires exploration and feedback completed — after slice 3
 
-Progress note: The learner asked to continue past the first two hands-on checkpoints without reporting observations. The sample and integrated flows remain unreviewed by the learner. This workspace has no configured OpenAI API key, so live provider calls are covered by mocked tests rather than exercised against OpenAI.
+Progress note: The learner asked to continue past the first two hands-on checkpoints without reporting observations. The sample and integrated flows remain unreviewed by the learner. Slice 3 is mechanically verified and committed as `557601d`: lint, typecheck, 18 unit tests, 8 integration tests, 4 browser flows, and the production build passed. This workspace has no configured OpenAI API key, so live provider calls are covered by mocked tests rather than exercised against OpenAI.
 
 ## Final Review
 
@@ -67,3 +67,5 @@ Activity mode: [live app and editor, explicit static fallback, focused alternati
 
 - Use TypeScript 6.0.3 instead of the researched 7.0.2 — production build passed with TypeScript 7, but the Next.js ESLint preset's `typescript-eslint` parser does not support TypeScript 7.0 yet; TypeScript 6 retains the selected stack and supports both build and lint.
 - Use Next's Webpack production builder and TypeScript compiler API — this sandbox blocks Turbopack's worker port and detached TypeScript CLI output, while both work through supported Next configuration paths; the app still uses the normal Next dev server.
+- Cross-check extracted deadlines against the exact quote's date, unambiguous time, percentage, and named zone; an exact quote by itself does not prove that the model mapped its values correctly.
+- Withhold the live estimate if any policy rule is unresolved or conflicts with another rule, since partial thresholds could omit a financial condition that changes the result.
