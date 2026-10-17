@@ -79,14 +79,20 @@ Checked against the [official rules](https://learn-ai-basics.devpost.com/rules),
 - [x] Working project with an end-to-end function; local setup and demo instructions are in `README.md`.
 - [x] Planning documents are committed under `devpost/`: `scope.md`, `prd.md`, and `spec.md`.
 - [x] Open-source `LICENSE` file is present (MIT).
-- [ ] A public GitHub, GitLab, or Bitbucket repository is accessible to judges and contains the finished source, assets, instructions, and planning documents. The configured remote was not publicly accessible when checked; confirm it is public after publishing.
-- [ ] The repository page visibly detects/displays the open-source license.
-- [ ] Put the public repository URL in Devpost's **Try it out** field.
+- [x] A public GitHub repository is accessible and contains the reviewed source, assets, instructions, and planning documents. Verified October 17, 2026: `https://github.com/zalkabsi/refundcurve` returns HTTP 200 and its `main` branch points to commit `13280ba`.
+- [x] The MIT license is present in the public repository and GitHub's repository page exposes the `LICENSE` file. The public `main/LICENSE` URL returns HTTP 200.
+- [x] The public repository URL is in Devpost's **Try it out** field, per the entrant's confirmation; this field was not independently checked.
+
+### Entry-card assets
+
+- [x] Project name: **RefundCurve**.
+- [x] Elevator pitch: **See how hotel cancellation deadlines could change what you get back.**
+- [x] A 3:2 PNG thumbnail under 5 MB is ready at `devpost/assets/refundcurve-thumbnail.png`.
 
 ### Submission materials and form
 
-- [ ] Write the English project description for the entry. It must explain the project features/functionality; the challenge page also asks what it does, who it is for, and what the entrant learned.
-- [ ] Record and publicly upload a **1 to under 3 minute** demo video to YouTube or Vimeo. It must show the app working on its intended platform and avoid third-party trademarks or copyrighted music/material unless permission is held.
+- [x] English project-description draft is ready at `devpost/submission-copy.md`; review the first-person learning paragraph so it matches the entrant's experience.
+- [ ] Upload a **1 to under 3 minute** demo video publicly to YouTube or Vimeo. A 78-second captioned screen recording of the app is ready at `devpost/assets/refundcurve-demo.mp4`; it has no spoken audio. The narration draft is at `devpost/demo-script.md`. The upload must show the app working on its intended platform and avoid third-party trademarks or copyrighted music/material unless permission is held.
 - [ ] Include the public video URL in the submission form.
 - [ ] Answer the required short-form question describing how the Devpost Learn Skill Pack was used.
 - [ ] Complete the required age-of-majority checkbox.
