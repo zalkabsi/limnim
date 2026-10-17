@@ -53,15 +53,15 @@ Progress note: The learner asked to continue past the first two hands-on checkpo
 
 ## Code Tour and App Map
 
-- [ ] Learning activity complete — guided route, focused alternative, prior practice connected, or brief recap
-- [ ] Optional edit and transfer reflection addressed — offered/declined/already covered/not applicable as appropriate
-- [ ] `devpost/app-map.html` generated from finished code, checked, and shown, including a project-grounded practice to reuse
+- [x] Learning activity complete — brief evidence-based recap
+- [x] Optional edit and transfer reflection addressed — no learner edit was needed for the recap; the transferable practice is recorded without claiming a personal reflection
+- [x] `devpost/app-map.html` generated from finished code, checked, and shown, including a project-grounded practice to reuse
 
-Activity and evidence: [record what actually happened, with real code/test references]
-Route and stops: [record actual paths and symbols; distinguish a reference route from a completed tour]
-Edit outcome: [tried/kept/reverted/declined/not applicable; verify and commit any kept edit]
-Reflection: [offered/answered/declined/already covered; personal answer belongs only in the ignored profile]
-Activity mode: [live app and editor, explicit static fallback, focused alternative, prior practice, or recap]
+Activity and evidence: Brief factual recap and reusable evidence-checking practice are in `devpost/app-map.html`. Chromium rendered the standalone page, all 17 local links were checked, and the page has no scripts or linked assets.
+Route and stops: The map provides a 3-stop reference route through `src/components/booking-form.tsx` and `src/components/policy-workspace.tsx`, `src/lib/ai/analyze-handler.ts` and `src/lib/ai/validate-analysis.ts`, then `src/lib/calculations/evaluate-policy.ts` and the result components. This was not an interactive learner tour.
+Edit outcome: No optional learner edit was attempted or attributed to the learner.
+Reflection: The map states a project-grounded practice to reuse. No personal reflection was provided or recorded.
+Activity mode: Brief evidence-based recap with an offline reference map; no interactive app/editor tour.
 
 ## Revisions
 

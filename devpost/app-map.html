@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>RefundCurve · App map</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #24352f;
+      --muted: #5f716a;
+      --paper: #f4f2eb;
+      --surface: #fffefa;
+      --line: #dce5dd;
+      --teal: #176a5d;
+      --mint: #e6f2eb;
+      --sand: #f4ead9;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--paper); color: var(--ink); line-height: 1.55; }
+    main { width: min(1060px, calc(100% - 32px)); margin: 0 auto; padding: 38px 0 64px; }
+    header { padding: 8px 0 26px; }
+    .eyebrow { margin: 0 0 8px; color: var(--teal); font-size: .76rem; font-weight: 750; letter-spacing: .12em; text-transform: uppercase; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { max-width: 780px; margin-bottom: 8px; font-size: clamp(2rem, 5vw, 3.4rem); line-height: 1.08; letter-spacing: -.045em; }
+    h2 { margin-bottom: 8px; font-size: clamp(1.2rem, 2.5vw, 1.55rem); letter-spacing: -.02em; }
+    h3 { margin-bottom: 5px; font-size: 1rem; }
+    .lede { max-width: 760px; margin-bottom: 0; color: var(--muted); font-size: 1.05rem; }
+    .snapshot { margin-top: 16px; color: var(--muted); font-size: .82rem; overflow-wrap: anywhere; }
+    section { margin-top: 20px; padding: clamp(18px, 3.5vw, 30px); border: 1px solid var(--line); border-radius: 20px; background: var(--surface); box-shadow: 0 12px 36px rgba(38, 58, 48, .045); }
+    .section-intro { margin-bottom: 18px; color: var(--muted); }
+    .diagram-frame { overflow-x: auto; border: 1px solid #e6ece5; border-radius: 15px; background: #fbfcf8; }
+    .flow { display: block; width: 100%; min-width: 760px; height: auto; }
+    .flow .node { fill: #fffefa; stroke: #cfddd2; stroke-width: 2; }
+    .flow .node-server { fill: var(--sand); stroke: #e4d5b9; }
+    .flow .node-client { fill: var(--mint); stroke: #c5dfcf; }
+    .flow .arrow { fill: none; stroke: var(--teal); stroke-width: 2.5; marker-end: url(#arrowhead); }
+    .flow .step { fill: var(--teal); font-size: 13px; font-weight: 800; letter-spacing: .1em; }
+    .flow .title { fill: var(--ink); font-size: 18px; font-weight: 750; }
+    .flow .detail { fill: var(--muted); font-size: 13px; }
+    .flow-note { margin: 12px 2px 0; color: var(--muted); font-size: .88rem; }
+    .reference { padding: 11px 14px; border-left: 4px solid #c28134; border-radius: 0 10px 10px 0; background: #fbf3e6; color: #624b2c; font-size: .9rem; }
+    ol.route { display: grid; gap: 12px; margin: 18px 0 0; padding-left: 1.5rem; }
+    .route li { padding-left: 4px; }
+    .route p { margin: 4px 0 0; color: var(--muted); }
+    code, .path { padding: .08rem .32rem; border-radius: 5px; background: #eef3ee; color: #25594d; font-size: .88em; overflow-wrap: anywhere; }
+    a { color: #145f54; text-decoration-thickness: .08em; text-underline-offset: .18em; }
+    a:hover { color: #0b4039; }
+    a:focus-visible, summary:focus-visible { outline: 3px solid #4c9b8b; outline-offset: 3px; border-radius: 4px; }
+    .pointers { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); gap: 12px; margin: 16px 0 0; padding: 0; list-style: none; }
+    .pointers li { padding: 14px; border: 1px solid #e6ece5; border-radius: 12px; background: #fbfcf8; }
+    .pointers strong { display: block; margin-bottom: 5px; }
+    .pointers span { display: block; color: var(--muted); font-size: .9rem; }
+    .practice { margin: 0; padding: 17px 19px; border-radius: 13px; background: var(--mint); }
+    .practice strong { color: #174e43; }
+    .run { margin-bottom: 0; }
+    pre { max-width: 100%; overflow-x: auto; margin: 12px 0; padding: 14px 16px; border-radius: 12px; background: #24352f; color: #f8fbf7; font-size: .9rem; }
+    footer { margin-top: 22px; color: var(--muted); font-size: .84rem; }
+    @media (max-width: 620px) {
+      main { width: min(100% - 20px, 1060px); padding-top: 22px; }
+      section { border-radius: 15px; }
+      .flow .title { font-size: 20px; }
+      .flow .detail { font-size: 16px; }
+      .flow .step { font-size: 14px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="eyebrow">RefundCurve · Project guide</p>
+      <h1>From policy text to a clearer cancellation decision.</h1>
+      <p class="lede">RefundCurve extracts hotel cancellation deadlines, checks each result against the quoted policy, then calculates a potential refund locally and shows how it changes over time.</p>
+      <p class="snapshot">Code snapshot: <code>a2172be92733b22c032afc917df562bea4ece267</code>. This map is a snapshot and may drift as the code changes.</p>
+    </header>
+
+    <section aria-labelledby="flow-heading">
+      <h2 id="flow-heading">One action through the app</h2>
+      <p class="section-intro">A traveler submits a policy once. The server checks the model's evidence; the browser handles the financial calculation and timeline movement.</p>
+      <div class="diagram-frame" tabindex="0" role="region" aria-label="Scrollable policy flow diagram">
+        <svg class="flow" viewBox="0 0 800 450" role="img" aria-labelledby="flow-title flow-description">
+          <title id="flow-title">Policy submission to evidence-backed refund timeline</title>
+          <desc id="flow-description">The traveler submits policy text and booking details. The server sends policy text and the property time zone to OpenAI, validates the response and evidence, then the browser resolves the deadlines, calculates the money, and shows the timeline and quotes.</desc>
+          <defs>
+            <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#176a5d"></path>
+            </marker>
+          </defs>
+
+          <path class="arrow" d="M 249 92 H 279"></path>
+          <path class="arrow" d="M 512 92 H 542"></path>
+          <path class="arrow" d="M 663 150 V 261"></path>
+          <path class="arrow" d="M 551 327 H 523"></path>
+
+          <g>
+            <rect class="node" x="25" y="35" width="224" height="115" rx="15"></rect>
+            <text class="step" x="43" y="61">01 · INPUT</text>
+            <text class="title" x="43" y="88">Traveler submits</text>
+            <text class="detail" x="43" y="111">BookingForm · PolicyWorkspace</text>
+            <text class="detail" x="43" y="132">Policy + zone sent; total stays local</text>
+          </g>
+          <g>
+            <rect class="node node-server" x="288" y="35" width="224" height="115" rx="15"></rect>
+            <text class="step" x="306" y="61">02 · EXTRACTION</text>
+            <text class="title" x="306" y="88">Server asks AI</text>
+            <text class="detail" x="306" y="111">/api/analyze · Responses API</text>
+            <text class="detail" x="306" y="132">One request · store: false</text>
+          </g>
+          <g>
+            <rect class="node node-server" x="551" y="35" width="224" height="115" rx="15"></rect>
+            <text class="step" x="569" y="61">03 · EVIDENCE GATE</text>
+            <text class="title" x="569" y="88">Verify each rule</text>
+            <text class="detail" x="569" y="111">Zod + exact quote checks</text>
+            <text class="detail" x="569" y="132">Date · time · rate · named zone</text>
+          </g>
+          <g>
+            <rect class="node node-client" x="551" y="270" width="224" height="115" rx="15"></rect>
+            <text class="step" x="569" y="296">04 · LOCAL RULES</text>
+            <text class="title" x="569" y="323">Resolve & calculate</text>
+            <text class="detail" x="569" y="346">Property time · decimal money</text>
+            <text class="detail" x="569" y="367">No AI call while moving the slider</text>
+          </g>
+          <g>
+            <rect class="node node-client" x="288" y="270" width="224" height="115" rx="15"></rect>
+            <text class="step" x="306" y="296">05 · VISIBLE RESULT</text>
+            <text class="title" x="306" y="323">Explore the outcome</text>
+            <text class="detail" x="306" y="346">Refund · penalty · next deadline</text>
+            <text class="detail" x="306" y="367">Timeline · supporting quote</text>
+          </g>
+          <text class="detail" x="27" y="425">No database or account · booking values stay in page memory and clear on refresh or close.</text>
+        </svg>
+      </div>
+      <p class="flow-note">OpenAI receives the pasted policy text and property time zone for the requested analysis. The booking amount and currency remain in the browser. Unsupported or conflicting policy details block the live estimate instead of being guessed.</p>
+    </section>
+
+    <section aria-labelledby="route-heading">
+      <h2 id="route-heading">A 3-stop code route</h2>
+      <p class="reference"><strong>Reference route · not toured interactively.</strong> Open these locations in the editor to follow the same flow as the diagram.</p>
+      <ol class="route">
+        <li>
+          <strong>Start where the traveler acts.</strong>
+          <p><a href="../src/components/booking-form.tsx"><code>src/components/booking-form.tsx</code></a> collects policy and booking input. <a href="../src/components/policy-workspace.tsx"><code>src/components/policy-workspace.tsx</code></a> keeps the workflow, sample path, and live result together.</p>
+        </li>
+        <li>
+          <strong>Follow the server's evidence gate.</strong>
+          <p><a href="../src/app/api/analyze/route.ts"><code>src/app/api/analyze/route.ts</code></a> calls the provider through <a href="../src/lib/ai/analyze-handler.ts"><code>createAnalyzeHandler</code></a>. <a href="../src/lib/ai/validate-analysis.ts"><code>supportedRuleEvidenceIssue</code></a> cross-checks the model's values against the source quote.</p>
+        </li>
+        <li>
+          <strong>Trace a verified rule to its displayed result.</strong>
+          <p><a href="../src/lib/calculations/evaluate-policy.ts"><code>resolveRules</code> and <code>evaluatePolicy</code></a> apply property-local time boundaries; <a href="../src/lib/calculations/money.ts"><code>calculatePenalty</code> and <code>calculateRefund</code></a> do decimal arithmetic. <a href="../src/components/timeline-chart.tsx"><code>TimelineChart</code></a> and <a href="../src/components/policy-evidence.tsx"><code>PolicyEvidence</code></a> show the result and its source.</p>
+        </li>
+      </ol>
+    </section>
+
+    <section aria-labelledby="change-heading">
+      <h2 id="change-heading">To change this, start here</h2>
+      <ul class="pointers">
+        <li><strong>Support another policy phrase</strong><span>Start with <a href="../src/lib/ai/prompt.ts"><code>prompt.ts</code></a>, then update the exact evidence rules in <a href="../src/lib/ai/validate-analysis.ts"><code>validate-analysis.ts</code></a> and its tests.</span></li>
+        <li><strong>Change how a deadline affects money</strong><span>Start with <a href="../src/lib/calculations/evaluate-policy.ts"><code>evaluate-policy.ts</code></a> and <a href="../src/lib/calculations/money.ts"><code>money.ts</code></a>; preserve exact-boundary and rounding checks.</span></li>
+        <li><strong>Adjust the sample booking</strong><span>Edit the fictional fixture in <a href="../src/data/examples/tokyo-policy.ts"><code>tokyo-policy.ts</code></a>; it uses the same deterministic calculation path.</span></li>
+        <li><strong>Change the visual treatment</strong><span>Start with <a href="../src/app/globals.css"><code>globals.css</code></a> and the relevant component. Keep the native range input keyboard-accessible.</span></li>
+      </ul>
+    </section>
+
+    <section aria-labelledby="practice-heading">
+      <h2 id="practice-heading">A practice to reuse</h2>
+      <p class="practice"><strong>Make the evidence requirement testable before an AI output can drive a consequential result.</strong> RefundCurve's approved <a href="prd.md"><code>prd.md · Analysis and Rule Evidence</code></a> says each supported rule needs a source excerpt. <a href="../tests/unit/validate-analysis.test.ts"><code>tests/unit/validate-analysis.test.ts</code></a> checks matching and mismatching dates, times, percentages, and policy scope. In another AI-assisted project, define what an answer must prove, then test both the evidence that qualifies and the evidence that should leave the result unresolved.</p>
+    </section>
+
+    <section aria-labelledby="run-heading">
+      <h2 id="run-heading">Run the app again</h2>
+      <p class="run">The fictional Tokyo example works without an API key. Live analysis needs a server-side <code>OPENAI_API_KEY</code>; do not put the key in client code or commit <code>.env.local</code>.</p>
+      <pre><code>npm install
+cp .env.example .env.local
+npm run dev</code></pre>
+      <p class="run">Then open <code>http://localhost:3000</code>. The code map is a local reference file at <code>devpost/app-map.html</code>; reopen it from the project folder or the editor.</p>
+    </section>
+
+    <footer>
+      This is a technical reference for the current code snapshot, not a claim that the learner completed the route or final app review. Refund estimates are not guaranteed hotel refunds or legal advice.
+    </footer>
+  </main>
+</body>
+</html>
