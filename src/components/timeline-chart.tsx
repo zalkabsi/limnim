@@ -92,6 +92,15 @@ export function TimelineChart({
         </svg>
       </div>
 
+      <ol className="deadline-list" aria-label="Policy penalty deadlines">
+        {rules.map((rule) => (
+          <li key={rule.id}>
+            <span>{formatPropertyTime(rule.deadlineMs, booking.propertyTimeZone)}</span>
+            <strong>{rule.penaltyPercent}% penalty</strong>
+          </li>
+        ))}
+      </ol>
+
       <label className="sr-only" htmlFor="cancellation-time">Cancellation time</label>
       <input
         id="cancellation-time"

@@ -1,5 +1,7 @@
 import { Info } from "luxon";
 import { AnalyzeRequestSchema, PolicyAnalysisSchema } from "@/lib/ai/schema";
+import { supportedRuleEvidenceIssue } from "@/lib/ai/validate-analysis";
+import type { PolicyRule } from "@/types/policy";
 
 type ExtractArguments = {
   apiKey: string;
@@ -58,16 +60,28 @@ export function createAnalyzeHandler({ getApiKey, extract }: AnalyzeDependencies
       }
 
       const unresolvedIssues = [...parsedAnalysis.data.unresolvedIssues];
-      const rules = parsedAnalysis.data.rules.filter((rule) => {
+      const rules: PolicyRule[] = [];
+      for (const rule of parsedAnalysis.data.rules) {
         if (!rule.evidenceQuote || !input.data.policyText.includes(rule.evidenceQuote)) {
           unresolvedIssues.push("A proposed cancellation condition was omitted because its source quote could not be verified.");
-          return false;
+          continue;
         }
         if (rule.status === "needs_clarification" && rule.issue) {
           unresolvedIssues.push(rule.issue);
+          rules.push(rule);
+          continue;
         }
-        return true;
-      });
+        const evidenceIssue = supportedRuleEvidenceIssue(rule, input.data.propertyTimeZone);
+        if (evidenceIssue) {
+          unresolvedIssues.push(evidenceIssue);
+          rules.push({ ...rule, status: "needs_clarification", issue: evidenceIssue });
+          continue;
+        }
+        rules.push(rule);
+      }
+      if (rules.length === 0 && unresolvedIssues.length === 0) {
+        unresolvedIssues.push("No explicit cancellation deadline and penalty could be verified from the submitted policy.");
+      }
 
       const analysis = PolicyAnalysisSchema.parse({
         rules,

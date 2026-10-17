@@ -12,6 +12,8 @@ describe("property-local time handling", () => {
   it("rejects unknown zones and malformed local times", () => {
     expect(resolvePropertyTime("2026-11-20T18:00", "Tokyo")).toEqual({ ok: false, error: "invalid_zone" });
     expect(resolvePropertyTime("not-a-date", "Asia/Tokyo")).toEqual({ ok: false, error: "invalid_time" });
+    expect(resolvePropertyTime("2026-11-20", "Asia/Tokyo")).toEqual({ ok: false, error: "invalid_time" });
+    expect(resolvePropertyTime("2026-11-20T18:00+09:00", "Asia/Tokyo")).toEqual({ ok: false, error: "invalid_time" });
   });
 
   it("flags repeated and skipped local times at daylight-saving changes", () => {

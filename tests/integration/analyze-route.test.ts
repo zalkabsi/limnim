@@ -7,7 +7,7 @@ const supportedOutput = {
     id: "deadline-1",
     deadlineLocal: "2026-11-20T18:00",
     penaltyPercent: "50",
-    evidenceQuote: "after that, a 50% penalty applies",
+    evidenceQuote: "Cancel before 2026-11-20 at 6:00 PM for no penalty; after that, a 50% penalty applies.",
     interpretation: "A 50% penalty begins at the first deadline.",
     status: "supported",
     issue: "",
@@ -62,6 +62,36 @@ describe("POST /api/analyze", () => {
     expect(response.status).toBe(200);
     expect(body.analysis.rules).toEqual([]);
     expect(body.analysis.unresolvedIssues[0]).toMatch(/source quote could not be verified/i);
+  });
+
+  it("downgrades a model deadline that does not match its exact source quote", async () => {
+    const mismatchedOutput = {
+      ...supportedOutput,
+      rules: [{ ...supportedOutput.rules[0], deadlineLocal: "2026-11-21T18:00" }],
+    };
+    const handler = createAnalyzeHandler({ getApiKey: () => "test-key", extract: async () => JSON.stringify(mismatchedOutput) });
+    const response = await handler(request({ policyText, propertyTimeZone: "Asia/Tokyo" }));
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.analysis.rules[0]).toMatchObject({ status: "needs_clarification" });
+    expect(body.analysis.unresolvedIssues[0]).toMatch(/complete date and time/i);
+  });
+
+  it("explains when the provider returns no usable cancellation rule", async () => {
+    const handler = createAnalyzeHandler({
+      getApiKey: () => "test-key",
+      extract: async () => JSON.stringify({ rules: [], unresolvedIssues: [] }),
+    });
+    const response = await handler(request({ policyText, propertyTimeZone: "Asia/Tokyo" }));
+
+    expect(response.status).toBe(200);
+    await expect(response.json()).resolves.toMatchObject({
+      analysis: {
+        rules: [],
+        unresolvedIssues: ["No explicit cancellation deadline and penalty could be verified from the submitted policy."],
+      },
+    });
   });
 
   it("does not call the provider when no API key is configured", async () => {

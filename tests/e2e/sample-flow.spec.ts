@@ -47,7 +47,7 @@ test("live policy analysis uses verified rules while keeping the booking total i
               id: "penalty-50",
               deadlineLocal: "2026-11-20T18:00",
               penaltyPercent: "50",
-              evidenceQuote: "A 50% penalty begins at that time.",
+              evidenceQuote: "Cancellation is free before November 20, 2026 at 6:00 PM. A 50% penalty begins at that time.",
               interpretation: "A 50% penalty starts at the first deadline.",
               status: "supported",
               issue: "",
@@ -92,4 +92,60 @@ test("live policy analysis uses verified rules while keeping the booking total i
   }, deadline);
   await expect(page.getByTestId("refund-amount")).toHaveText("$600.00");
   await expect(page.getByTestId("penalty-amount")).toHaveText("$600.00");
+});
+
+test("a clarification-needed policy shows no guessed refund amount", async ({ page }) => {
+  const policyText = "Cancellations made less than 48 hours before arrival are subject to the hotel's discretion.";
+  const issue = "The deadline is relative to check-in, which is not stated as an exact date and time.";
+  await page.route("**/api/analyze", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        analysis: {
+          rules: [{
+            id: "relative-deadline",
+            deadlineLocal: "",
+            penaltyPercent: "",
+            evidenceQuote: policyText,
+            interpretation: "The hotel decides whether this cancellation qualifies for a refund.",
+            status: "needs_clarification",
+            issue,
+          }],
+          unresolvedIssues: [issue],
+        },
+      }),
+    });
+  });
+
+  await page.goto("/");
+  await page.locator("#policy-text").fill(policyText);
+  await page.locator("#booking-amount").fill("1200");
+  await page.locator("#property-zone").fill("Asia/Tokyo");
+  await page.getByRole("button", { name: "Analyze policy" }).click();
+
+  await expect(page.getByText("No refund estimate yet")).toBeVisible();
+  await expect(page.getByTestId("refund-amount")).toHaveCount(0);
+  await expect(page.getByText(issue).first()).toBeVisible();
+});
+
+test("the timeline supports keyboard changes and fits a narrow screen", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/");
+  await page.getByRole("button", { name: /Try sample booking/i }).click();
+
+  const slider = page.getByRole("slider", { name: "Cancellation time" });
+  const oneMinuteBeforeFirstDeadline = DateTime.fromISO("2026-11-20T17:59", { zone: "Asia/Tokyo" }).toMillis();
+  await slider.evaluate((element, value) => {
+    const input = element as HTMLInputElement;
+    const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")?.set;
+    setter?.call(input, String(value));
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+  }, oneMinuteBeforeFirstDeadline);
+  await slider.focus();
+  await slider.press("ArrowRight");
+  await expect(page.getByTestId("refund-amount")).toHaveText("$600.00");
+  await expect(page.getByTestId("penalty-amount")).toHaveText("$600.00");
+  await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
 });

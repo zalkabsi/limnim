@@ -128,6 +128,10 @@ button:focus-visible, input:focus-visible { outline: 3px solid rgba(15, 118, 110
 .chart-marker { stroke: #a6beb1; stroke-dasharray: 4 5; stroke-width: 1.5; }
 .chart-dot { fill: #fff; stroke: var(--teal); stroke-width: 3; }
 .chart-threshold-label { fill: #49635d; font-family: inherit; font-size: 10px; font-weight: 650; }
+.deadline-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 215px), 1fr)); gap: 8px; margin: 4px 0 13px; padding: 0; list-style: none; }
+.deadline-list li { display: flex; min-width: 0; flex-direction: column; gap: 2px; padding: 9px 11px; border: 1px solid #edf1ed; border-radius: 10px; background: #fbfcfa; }
+.deadline-list span { color: #6e7e78; font-size: 10px; overflow-wrap: anywhere; }
+.deadline-list strong { color: #47645c; font-size: 11px; font-weight: 680; }
 .range-control { display: block; width: 100%; margin: 3px 0 0; accent-color: var(--teal); cursor: ew-resize; }
 .range-control:focus-visible { outline: 3px solid rgba(15,118,110,.32); outline-offset: 5px; border-radius: 8px; }
 .range-caption { display: flex; justify-content: space-between; margin-top: 7px; color: #85918d; font-size: 10px; }

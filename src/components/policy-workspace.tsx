@@ -24,6 +24,8 @@ type LiveResult = {
   analysis: PolicyAnalysis;
   rules: ResolvedRule[];
   unresolvedIssues: string[];
+  contextNotes: string[];
+  isCalculable: boolean;
   minMs: number;
   maxMs: number;
   selectedMs: number;
@@ -70,16 +72,26 @@ export function PolicyWorkspace() {
 
       const parsed = AnalyzeResponseSchema.parse(payload);
       const resolved = resolveRules(parsed.analysis, bookingCheck.data.propertyTimeZone);
-      const issues = [...resolved.unresolvedIssues];
+      const unresolvedById = new Map(resolved.unresolvedRules.map((rule) => [rule.id, rule]));
+      const displayAnalysis: PolicyAnalysis = {
+        ...parsed.analysis,
+        rules: parsed.analysis.rules.map((rule) => {
+          const unresolved = unresolvedById.get(rule.id);
+          return unresolved ? { ...rule, status: "needs_clarification", issue: unresolved.issue } : rule;
+        }),
+      };
+      const contextNotes: string[] = [];
       const firstRule = resolved.rules[0];
       const lastRule = resolved.rules.at(-1);
 
       if (!firstRule || !lastRule) {
         setLiveResult({
           booking: bookingCheck.data,
-          analysis: parsed.analysis,
+          analysis: displayAnalysis,
           rules: resolved.rules,
-          unresolvedIssues: [...new Set(issues)],
+          unresolvedIssues: resolved.unresolvedIssues,
+          contextNotes,
+          isCalculable: false,
           minMs: 0,
           maxMs: 0,
           selectedMs: 0,
@@ -92,13 +104,13 @@ export function PolicyWorkspace() {
         : null;
       const validCheckIn = checkInResult?.ok ? checkInResult.epochMs : null;
       if (checkInResult && !checkInResult.ok) {
-        issues.push(`Check-in time could not be resolved (${checkInResult.error}); the timeline ends at the last supported deadline.`);
+        contextNotes.push(`Check-in time could not be resolved (${checkInResult.error}); the timeline ends at the last supported deadline.`);
       }
       if (validCheckIn !== null && validCheckIn <= lastRule.deadlineMs) {
-        issues.push("Check-in occurs before the last supported cancellation deadline; the timeline ends at that deadline.");
+        contextNotes.push("Check-in occurs before the last supported cancellation deadline; the timeline ends at that deadline.");
       }
       if (!bookingCheck.data.checkInLocal) {
-        issues.push("Check-in was not provided, so the timeline ends at the last supported deadline.");
+        contextNotes.push("Check-in was not provided, so the timeline ends at the last supported deadline.");
       }
 
       const proposedMin = firstRule.deadlineMs - 24 * 60 * 60 * 1000;
@@ -106,9 +118,11 @@ export function PolicyWorkspace() {
       const minMs = Math.min(proposedMin, maxMs);
       setLiveResult({
         booking: bookingCheck.data,
-        analysis: parsed.analysis,
+        analysis: displayAnalysis,
         rules: resolved.rules,
-        unresolvedIssues: [...new Set(issues)],
+        unresolvedIssues: resolved.unresolvedIssues,
+        contextNotes,
+        isCalculable: resolved.unresolvedIssues.length === 0,
         minMs,
         maxMs,
         selectedMs: minMs,
@@ -212,7 +226,7 @@ export function PolicyWorkspace() {
               </div>
             </div>
 
-            {liveResult.rules.length > 0 ? (() => {
+            {liveResult.isCalculable && liveResult.rules.length > 0 ? (() => {
               const liveOutcome = evaluatePolicy(liveResult.booking.amount, liveResult.booking.currency, liveResult.rules, liveResult.selectedMs);
               return (
                 <>
@@ -236,7 +250,7 @@ export function PolicyWorkspace() {
             )}
             <PolicyEvidence
               rules={liveResult.analysis.rules}
-              unresolvedIssues={liveResult.unresolvedIssues}
+              unresolvedIssues={[...liveResult.unresolvedIssues, ...liveResult.contextNotes]}
               sourceLabel="Quoted from your submitted policy"
             />
           </section>

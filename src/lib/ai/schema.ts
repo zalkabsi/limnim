@@ -7,7 +7,7 @@ export const PolicyRuleSchema = z.object({
   deadlineLocal: z.string().max(25),
   penaltyPercent: z.string().max(12),
   evidenceQuote: z.string().max(1200),
-  interpretation: z.string().max(500),
+  interpretation: z.string().trim().min(1).max(500),
   status: z.enum(["supported", "needs_clarification"]),
   issue: z.string().max(500),
 }).strict().superRefine((rule, context) => {
@@ -22,13 +22,24 @@ export const PolicyRuleSchema = z.object({
     if (!rule.evidenceQuote.trim()) {
       context.addIssue({ code: "custom", path: ["evidenceQuote"], message: "Supported rules need an evidence quote." });
     }
+    if (rule.issue.trim()) {
+      context.addIssue({ code: "custom", path: ["issue"], message: "Supported rules should not have a clarification issue." });
+    }
   } else if (!rule.issue.trim()) {
     context.addIssue({ code: "custom", path: ["issue"], message: "Rules needing clarification must say what is unclear." });
   }
 });
 
 export const PolicyAnalysisSchema = z.object({
-  rules: z.array(PolicyRuleSchema).max(20),
+  rules: z.array(PolicyRuleSchema).max(20).superRefine((rules, context) => {
+    const seenIds = new Set<string>();
+    rules.forEach((rule, index) => {
+      if (seenIds.has(rule.id)) {
+        context.addIssue({ code: "custom", path: [index, "id"], message: "Rule identifiers must be unique." });
+      }
+      seenIds.add(rule.id);
+    });
+  }),
   unresolvedIssues: z.array(z.string().min(1).max(500)).max(40),
 }).strict();
 
@@ -53,11 +64,11 @@ export const cancellationAnalysisJsonSchema = {
         additionalProperties: false,
         required: ["id", "deadlineLocal", "penaltyPercent", "evidenceQuote", "interpretation", "status", "issue"],
         properties: {
-          id: { type: "string" },
+          id: { type: "string", minLength: 1 },
           deadlineLocal: { type: "string", description: "YYYY-MM-DDTHH:mm in the property's IANA time zone; empty only when it cannot be resolved from explicit policy text." },
-          penaltyPercent: { type: "string", description: "A decimal percentage from 0 through 100; use an empty string if the percentage is not explicit." },
+          penaltyPercent: { type: "string", description: "A decimal percentage from 0 through 100; use 100 only when the entire booking amount is explicitly non-refundable; use an empty string if the penalty cannot be resolved." },
           evidenceQuote: { type: "string", description: "An exact, contiguous excerpt copied verbatim from the submitted policy, or empty when no excerpt supports this candidate." },
-          interpretation: { type: "string" },
+          interpretation: { type: "string", minLength: 1 },
           status: { type: "string", enum: ["supported", "needs_clarification"] },
           issue: { type: "string", description: "Short reason the rule needs clarification, or empty for a supported rule." },
         },

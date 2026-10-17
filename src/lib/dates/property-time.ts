@@ -10,14 +10,16 @@ export function resolvePropertyTime(localDateTime: string, zone: string): Proper
   if (!Info.isValidIANAZone(zone)) {
     return { ok: false, error: "invalid_zone" };
   }
+  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(localDateTime)) {
+    return { ok: false, error: "invalid_time" };
+  }
 
   const parsed = DateTime.fromISO(localDateTime, { zone });
   if (!parsed.isValid) {
     return { ok: false, error: "invalid_time" };
   }
 
-  const expectedLocal = localDateTime.slice(0, 16);
-  if (parsed.toFormat("yyyy-MM-dd'T'HH:mm") !== expectedLocal) {
+  if (parsed.toFormat("yyyy-MM-dd'T'HH:mm") !== localDateTime) {
     return { ok: false, error: "nonexistent_time" };
   }
 

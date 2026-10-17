@@ -85,7 +85,9 @@ Loads the fictional $1,200 USD Tokyo booking and its prevalidated two-threshold 
 
 ### Extraction Prompt and Schema
 
-Defines the supported policy shape and strict structured response. Policy text is quoted source material, not instructions: the extraction prompt explicitly says to ignore instructions embedded in it. The schema returns candidate local deadlines, penalty percentages, verbatim evidence quotes, plain-language interpretations, and clarification status. Implements `prd.md > Analysis and Rule Evidence`.
+Defines the supported policy shape and strict structured response. Policy text is quoted source material, not instructions: the extraction prompt explicitly says to ignore instructions embedded in it. The schema returns candidate local deadlines, penalty percentages, verbatim evidence quotes, plain-language interpretations, and clarification status. The server checks that each quote is an exact substring, then cross-checks its explicit date, unambiguous clock time, penalty, and any named time zone against the candidate before allowing the rule to be calculated. Implements `prd.md > Analysis and Rule Evidence`.
+
+If any policy rule remains unresolved or the supported deadlines conflict, the live summary and timeline are withheld until the policy can support a complete calculation. A whole-booking non-refundable condition may map to a 100% penalty when the quoted text makes that scope explicit; deposits, per-night or per-room charges, and other partial amounts remain unresolved.
 
 ### Property-Time Date Helper
 
@@ -93,7 +95,7 @@ Validates IANA time-zone names and converts usable local date/time thresholds to
 
 ### Rule Evaluator and Money Helper
 
-Checks that rules are supported, complete, ordered, and do not contradict each other. For a selected cancellation instant, it uses the last threshold at or before that instant. Penalty equals booking amount times penalty percentage; refund equals booking amount minus penalty. Use decimal arithmetic and round the penalty half-up to the currency's minor unit, then subtract it from the authoritative entered amount. Implements `prd.md > Financial Outcome` and `prd.md > Sample and Timeline`.
+Checks that rules are supported, complete, ordered, and do not contradict each other. It rejects decreasing rates and different penalties at the same instant, and collapses exact duplicate thresholds. If a deadline cannot be resolved or a supported rule is incomplete, it leaves the whole live result unresolved. For a selected cancellation instant, it uses the last threshold at or before that instant. Penalty equals booking amount times penalty percentage; refund equals booking amount minus penalty. Use decimal arithmetic and round the penalty half-up to the currency's minor unit, then subtract it from the authoritative entered amount. Implements `prd.md > Financial Outcome` and `prd.md > Sample and Timeline`.
 
 ### Financial Summary
 
@@ -116,7 +118,7 @@ Renders refund/penalty amounts as a clearly labeled step chart with threshold ma
 - **Selected time and result:** selected instant, penalty, refund, applicable rule, and next deadline are computed in the browser from the booking and resolved rules. Moving the slider recomputes these locally. Values disappear when the page is closed or refreshed.
 - **Sample fixture:** static TypeScript data shipped with the app: $1,200 USD; check-in November 26, 2026 at 3:00 PM `Asia/Tokyo`; no penalty before November 20 at 6:00 PM; 50% penalty beginning exactly then; 100% beginning exactly November 24 at 3:00 PM. It uses the same rule evaluator and money helper as live results.
 
-Live extraction output is accepted only when the response passes Zod validation, percentages are in range, evidence is a verbatim substring of the original policy, deadlines can be resolved, and rules are in a consistent order. Missing or unsupported conditions remain visible as unresolved; they are not filled in by the model or calculation code.
+Live extraction output is accepted only when the response passes Zod validation, the evidence is a verbatim substring of the original policy, the quoted date/time and penalty match the candidate, deadlines resolve in the property zone, and rules are consistent. If a policy condition remains unresolved, no live refund amount is shown. Missing or unsupported conditions remain visible; they are not filled in by the model or calculation code.
 
 ## File Structure
 
@@ -131,6 +133,7 @@ refundcurve/
 ├── next.config.ts                 # Next.js configuration
 ├── package.json                   # Scripts and dependencies
 ├── package-lock.json              # Reproducible dependency versions
+├── next-env.d.ts                  # Next.js generated type references
 ├── playwright.config.ts           # Browser test configuration
 ├── postcss.config.mjs              # Tailwind/PostCSS integration
 ├── tsconfig.json                  # TypeScript configuration
@@ -140,7 +143,8 @@ refundcurve/
 │   ├── scope.md                 # Approved proof-of-concept boundary
 │   ├── prd.md                   # Approved product behavior
 │   ├── spec.md                  # This technical blueprint
-│   └── checklist.md             # Ordered build and submission checks
+│   ├── checklist.md             # Ordered build and submission checks
+│   └── app-map.html             # Offline code route and architecture map
 ├── src/
 │   ├── app/
 │   │   ├── api/analyze/route.ts # Validated, server-only AI extraction endpoint
@@ -157,17 +161,16 @@ refundcurve/
 │   │   ├── timeline-chart.tsx   # Step SVG, markers, and native range control
 │   │   └── ui/
 │   │       ├── button.tsx       # Button primitive
-│   │       ├── card.tsx          # Content surface primitive
-│   │       ├── input.tsx         # Form input primitive
-│   │       ├── select.tsx        # Currency/time-zone selection primitive
-│   │       └── textarea.tsx      # Policy text input primitive
+│   │       └── card.tsx         # Content surface primitive
 │   ├── data/examples/
 │   │   └── tokyo-policy.ts      # Prevalidated fictional sample fixture
 │   ├── lib/
 │   │   ├── ai/
+│   │   │   ├── analyze-handler.ts # Injectable API handler and server validation
 │   │   │   ├── extract-policy.ts # OpenAI Responses API call and response checks
 │   │   │   ├── prompt.ts         # Extraction instructions
-│   │   │   └── schema.ts         # Strict provider schema and Zod validation
+│   │   │   ├── schema.ts         # Strict provider schema and Zod validation
+│   │   │   └── validate-analysis.ts # Quote-to-deadline and penalty evidence checks
 │   │   ├── calculations/
 │   │   │   ├── evaluate-policy.ts # Threshold selection and consistency checks
 │   │   │   └── money.ts          # Decimal-safe penalty/refund arithmetic
@@ -179,13 +182,14 @@ refundcurve/
 │       └── policy.ts             # Shared rule and result types
 ├── tests/
 │   ├── e2e/
-│   │   └── sample-flow.spec.ts   # Sample flow and accessible timeline interaction
+│   │   └── sample-flow.spec.ts   # Sample/live flows, unresolved policy, keyboard and narrow-screen checks
 │   ├── integration/
 │   │   └── analyze-route.test.ts # API behavior with mocked provider response
 │   └── unit/
 │       ├── evaluate-policy.test.ts # Rule ordering and threshold behavior
 │       ├── money.test.ts           # Decimal calculations and currency rounding
-│       └── property-time.test.ts   # IANA and daylight-saving boundary cases
+│       ├── property-time.test.ts   # IANA and daylight-saving boundary cases
+│       └── validate-analysis.test.ts # Exact policy evidence checks
 ```
 
 ## External Services and Dependencies
