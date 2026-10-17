@@ -19,7 +19,7 @@ Build mode: fast
   Learner check: Run the app, choose “Try sample booking,” move the time control before and exactly at each deadline, and inspect a policy excerpt. Share anything confusing or visually off before live analysis is built.
   Commit: `Build sample cancellation timeline`
 
-- [ ] **2. Analyze an explicit cancellation policy end to end**
+- [x] **2. Analyze an explicit cancellation policy end to end**
   Becomes usable: A traveler can enter policy and booking details, receive extracted deadline candidates with exact evidence, and inspect the resulting refund/penalty timeline for supported explicit local date-and-time thresholds. The Tokyo sample still works without credentials.
   Why now: The sample has proved the deterministic calculation path. This slice adds the central AI-to-evidence-to-timeline kernel early, so its behavior can be reviewed before we harden edge cases.
   PRD ref: `prd.md > The Core Journey` (steps 2–5), `prd.md > Policy and Booking Input`, `prd.md > Analysis and Rule Evidence`, `prd.md > Financial Outcome`, `prd.md > Sample and Timeline`.
@@ -44,6 +44,8 @@ Build mode: fast
 - [ ] Early usable behavior explored — after slice 1, including feedback on the sample workspace and timeline
 - [ ] Integrated live core journey explored — after slice 2, so extraction/evidence feedback can shape final hardening
 - [ ] Final kick-the-tires exploration and feedback completed — after slice 3
+
+Progress note: The learner asked to continue past the first two hands-on checkpoints without reporting observations. The sample and integrated flows remain unreviewed by the learner. This workspace has no configured OpenAI API key, so live provider calls are covered by mocked tests rather than exercised against OpenAI.
 
 ## Final Review
 
