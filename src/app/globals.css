@@ -55,10 +55,40 @@ button:focus-visible, input:focus-visible { outline: 3px solid rgba(15, 118, 110
 .button:hover { transform: translateY(-1px); background: var(--teal-dark); box-shadow: 0 8px 18px rgba(15, 118, 110, 0.2); }
 .button:active { transform: translateY(0); }
 .button:focus-visible { outline: 3px solid rgba(15, 118, 110, 0.32); outline-offset: 3px; }
+.button:disabled { cursor: wait; opacity: .72; transform: none; }
 .arrow { font-size: 17px; line-height: 1; }
 
 .sample-label { display: inline-flex; align-items: center; gap: 7px; margin: 0 0 11px; color: var(--teal); font-size: 10px; font-weight: 750; letter-spacing: 0.12em; text-transform: uppercase; }
 .sample-label::before { width: 6px; height: 6px; border-radius: 50%; background: #61a184; content: ""; }
+.live-form { margin: 0 0 16px; padding: 25px 27px 21px; }
+.form-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 19px; }
+.form-heading h2 { margin: 0; font-size: 20px; letter-spacing: -.04em; }
+.form-step { padding: 6px 10px; border: 1px solid #e3eae4; border-radius: 999px; color: #70817a; font-size: 10px; }
+.form-field { display: flex; min-width: 0; flex-direction: column; gap: 7px; color: #415653; font-size: 12px; font-weight: 650; }
+.form-field > span { display: flex; align-items: baseline; gap: 7px; }
+.form-field em { color: #89958f; font-size: 10px; font-style: normal; font-weight: 450; }
+.form-field input, .form-field select, .form-field textarea { width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid #dbe4de; border-radius: 10px; background: #fcfdfb; color: var(--ink); font: inherit; font-weight: 450; }
+.form-field textarea { min-height: 134px; resize: vertical; line-height: 1.55; }
+.form-field input::placeholder, .form-field textarea::placeholder { color: #9aa6a0; }
+.form-field small { color: #83908a; font-size: 10px; font-weight: 450; line-height: 1.4; }
+.form-field input:focus-visible, .form-field select:focus-visible, .form-field textarea:focus-visible { outline: 3px solid rgba(15, 118, 110, .24); outline-offset: 2px; border-color: #64a99b; }
+.form-grid { display: grid; grid-template-columns: 1fr .55fr 1.15fr 1.1fr; gap: 13px; margin-top: 17px; }
+.form-submit-row { display: flex; align-items: center; justify-content: space-between; gap: 22px; margin-top: 19px; padding-top: 15px; border-top: 1px solid #edf0ed; }
+.privacy-note { max-width: 720px; margin: 0; color: #788680; font-size: 10px; line-height: 1.5; }
+.privacy-note code { color: #42665d; font-size: 10px; }
+.form-feedback:empty { display: none; }
+.form-error, .form-pending { margin: 12px 0 0; font-size: 12px; }
+.form-error { color: #9a4e32; }
+.form-pending { color: var(--teal-dark); }
+.no-calculation { margin: 0 0 14px; padding: 20px 22px; }
+.no-calculation strong { font-size: 15px; }
+.no-calculation p { margin: 5px 0 0; color: var(--muted); font-size: 12px; }
+.evidence-empty { margin: 14px 0; color: #788680; font-size: 12px; }
+.evidence-status-warning { color: #9a6230; }
+.unresolved-box { margin: 8px 0 17px; padding: 13px 15px; border: 1px solid #f0ddc8; border-radius: 12px; background: #fffaf4; color: #79583c; font-size: 11px; }
+.unresolved-box strong { color: #704621; font-size: 11px; }
+.unresolved-box ul { margin: 6px 0 0; padding-left: 17px; }
+.unresolved-box li + li { margin-top: 4px; }
 .workspace { animation: rise-in 260ms ease both; }
 @keyframes rise-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 .workspace-heading { display: flex; align-items: end; justify-content: space-between; gap: 20px; margin: 10px 0 15px; }
@@ -122,6 +152,7 @@ button:focus-visible, input:focus-visible { outline: 3px solid rgba(15, 118, 110
   .hero-aside { max-width: 540px; }
   .summary-grid { grid-template-columns: 1fr 1fr; }
   .next-deadline { grid-column: span 2; min-height: 110px; }
+  .form-grid { grid-template-columns: 1fr 1fr; }
 }
 
 @media (max-width: 560px) {
@@ -133,6 +164,11 @@ button:focus-visible, input:focus-visible { outline: 3px solid rgba(15, 118, 110
   .hero-copy { font-size: 14px; }
   .sample-card { grid-template-columns: 1fr; padding: 19px; }
   .sample-card .button { width: 100%; }
+  .live-form { padding: 19px 16px; }
+  .form-heading { align-items: flex-start; flex-direction: column; }
+  .form-grid { grid-template-columns: 1fr; }
+  .form-submit-row { align-items: stretch; flex-direction: column; gap: 13px; }
+  .form-submit-row .button { width: 100%; }
   .workspace-heading { align-items: flex-start; flex-direction: column; }
   .booking-meta { flex-wrap: wrap; }
   .summary-grid { gap: 9px; }
