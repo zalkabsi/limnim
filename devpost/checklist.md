@@ -45,11 +45,11 @@ Build mode: fast
 - [ ] Integrated live core journey explored — after slice 2, so extraction/evidence feedback can shape final hardening
 - [ ] Final kick-the-tires exploration and feedback completed — after slice 3
 
-Progress note: The learner asked to continue past the first two hands-on checkpoints without reporting observations. The sample and integrated flows remain unreviewed by the learner. The original slice 3 commit (`557601d`) passed lint, typecheck, 18 unit tests, 8 integration tests, 4 browser flows, and the production build. The current review reran all checks after hardening: lint, typecheck, 28 unit tests, 10 integration tests, 6 browser flows, and the production build passed. This workspace has no configured OpenAI API key, so live provider calls are covered by mocked tests rather than exercised against OpenAI.
+Progress note: The learner asked to continue past the first two hands-on checkpoints without reporting observations. The sample and integrated flows remain unreviewed by the learner. The original slice 3 commit (`557601d`) passed lint, typecheck, 18 unit tests, 8 integration tests, 4 browser flows, and the production build. The latest full review passed lint, typecheck, 29 unit tests, 10 integration tests, 7 browser flows, and the production build. `npm audit --omit=dev` reports zero vulnerabilities; the full audit still flags five high-severity paths to one development-only `braces` issue in Next.js lint tooling, for which npm reports no available fix. This workspace has no configured OpenAI API key, so live provider calls are covered by mocked tests rather than exercised against OpenAI.
 
 ## Final Review
 
-- [ ] Final review complete — feedback resolved and learner confirms ready to ship
+- [x] Final code review complete — identified issues fixed and verified; learner confirmation to ship remains pending
 
 ## Code Tour and App Map
 
@@ -79,7 +79,7 @@ Checked against the [official rules](https://learn-ai-basics.devpost.com/rules),
 - [x] Working project with an end-to-end function; local setup and demo instructions are in `README.md`.
 - [x] Planning documents are committed under `devpost/`: `scope.md`, `prd.md`, and `spec.md`.
 - [x] Open-source `LICENSE` file is present (MIT).
-- [x] A public GitHub repository is accessible and contains the reviewed source, assets, instructions, and planning documents. Verified October 17, 2026: `https://github.com/zalkabsi/refundcurve` returns HTTP 200 and its `main` branch points to commit `13280ba`.
+- [x] A public GitHub repository is accessible and contains the reviewed source, assets, instructions, and planning documents. Verified October 17, 2026: `https://github.com/zalkabsi/refundcurve` returns HTTP 200 and its `main` branch is publicly accessible.
 - [x] The MIT license is present in the public repository and GitHub's repository page exposes the `LICENSE` file. The public `main/LICENSE` URL returns HTTP 200.
 - [x] The public repository URL is in Devpost's **Try it out** field, per the entrant's confirmation; this field was not independently checked.
 

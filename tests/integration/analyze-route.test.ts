@@ -24,13 +24,15 @@ function request(body: unknown) {
 }
 
 describe("POST /api/analyze", () => {
-  it("returns validated rules and sends only policy text and property time zone to the provider", async () => {
-    const extract = vi.fn(async (arguments_: { apiKey: string; policyText: string; propertyTimeZone: string }) => {
-      expect(Object.keys(arguments_).sort()).toEqual(["apiKey", "policyText", "propertyTimeZone"]);
+  it("returns validated rules without booking values and forwards request cancellation", async () => {
+    const analyzeRequest = request({ policyText, propertyTimeZone: "Asia/Tokyo" });
+    const extract = vi.fn(async (arguments_: { apiKey: string; policyText: string; propertyTimeZone: string; signal: AbortSignal }) => {
+      expect(Object.keys(arguments_).sort()).toEqual(["apiKey", "policyText", "propertyTimeZone", "signal"]);
+      expect(arguments_.signal).toBe(analyzeRequest.signal);
       return JSON.stringify(supportedOutput);
     });
     const handler = createAnalyzeHandler({ getApiKey: () => "test-key", extract });
-    const response = await handler(request({ policyText, propertyTimeZone: "Asia/Tokyo" }));
+    const response = await handler(analyzeRequest);
 
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({ analysis: supportedOutput });
@@ -39,6 +41,7 @@ describe("POST /api/analyze", () => {
       apiKey: "test-key",
       policyText,
       propertyTimeZone: "Asia/Tokyo",
+      signal: analyzeRequest.signal,
     });
   });
 

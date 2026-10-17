@@ -89,6 +89,19 @@ describe("supported rule evidence", () => {
     }), "Asia/Tokyo")).toMatch(/does not confirm this percentage/i);
   });
 
+  it("rejects counted-night penalties and fixed fees in supported currencies", () => {
+    const unsupportedQuotes = [
+      "A 50% penalty applies from November 20, 2026 at 6:00 PM and covers only the first two nights.",
+      "A 50% penalty applies from November 20, 2026 at 6:00 PM, then a ¥500 fee is charged.",
+      "A 50% penalty applies from November 20, 2026 at 6:00 PM, plus a fixed fee of 500 yen.",
+    ];
+
+    for (const evidenceQuote of unsupportedQuotes) {
+      expect(supportedRuleEvidenceIssue(rule({ evidenceQuote }), "Asia/Tokyo"))
+        .toMatch(/does not confirm this percentage as a penalty for the full booking amount/i);
+    }
+  });
+
   it("rejects a time-zone abbreviation that conflicts with the property", () => {
     expect(supportedRuleEvidenceIssue(rule({
       evidenceQuote: "A 50% penalty applies from November 20, 2026 at 6:00 PM PST.",

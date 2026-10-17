@@ -7,6 +7,7 @@ type ExtractArguments = {
   apiKey: string;
   policyText: string;
   propertyTimeZone: string;
+  signal: AbortSignal;
 };
 
 type AnalyzeDependencies = {
@@ -107,6 +108,7 @@ export function createAnalyzeHandler({ getApiKey, extract }: AnalyzeDependencies
         apiKey,
         policyText: input.data.policyText,
         propertyTimeZone: input.data.propertyTimeZone,
+        signal: request.signal,
       });
       const parsedOutput: unknown = JSON.parse(outputText);
       const parsedAnalysis = PolicyAnalysisSchema.safeParse(parsedOutput);

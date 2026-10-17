@@ -115,7 +115,16 @@ function isWholeBookingNonRefundable(quote: string): boolean {
 function penaltyConsequencePosition(rule: PolicyRule): number | null {
   const quote = rule.evidenceQuote;
   const rate = Number(rule.penaltyPercent);
-  const partialScope = /\bdeposit\b|\bper[- ]?(?:room|night|person)\b|\b(?:first|last|one|each|remaining)\s+nights?\b|\brooms?\b|\btaxes?\b|\bfixed fee\b|[$€£]\s*\d/i.test(quote);
+  const numberWords = "zero|one|two|three|four|five|six|seven|eight|nine|ten|eleven|twelve|several|multiple|few|couple";
+  const countedNight = new RegExp(
+    `\\b(?:first|last|next|previous|prior|following|remaining)\\s+(?:\\d+|${numberWords})\\s+(?:consecutive\\s+)?nights?\\b|\\b(?:\\d+|${numberWords})[- ](?:consecutive[- ])?nights?\\b`,
+    "i",
+  );
+  const fixedAmount = /[$€£¥￥₹₩₽₺₫฿₱]\s*\d|\b(?:USD|EUR|GBP|CAD|AUD|JPY|SGD|NZD)\s*\d|\b\d+(?:[.,]\d+)?\s*(?:USD|EUR|GBP|CAD|AUD|JPY|SGD|NZD|yen|dollars?|euros?|pounds?)\b|\b(?:fixed|flat)\s+(?:fee|charge|amount|rate)\b|\b(?:fee|charge|cost)\s+(?:of\s+)?\d+(?:[.,]\d{1,2})?(?!\s*%)(?!\w)/i;
+  const partialScope =
+    /\bdeposit\b|\bper[- ]?(?:room|night|person)\b|\b(?:first|last|one|each|every|remaining)\s+nights?\b|\brooms?\b|\btaxes?\b|\bfixed fee\b|\bnightly\b/i.test(quote) ||
+    countedNight.test(quote) ||
+    fixedAmount.test(quote);
   if (partialScope) return null;
   const percentages = [...quote.matchAll(/\b(\d+(?:\.\d+)?)\s*(?:%|percent(?:age)?\b)/gi)];
   if (percentages.some((match) => Number(match[1]) !== rate)) return null;

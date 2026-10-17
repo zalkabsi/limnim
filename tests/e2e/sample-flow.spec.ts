@@ -181,6 +181,44 @@ test("live results label the final deadline when no check-in is entered", async 
 
   await expect(page.getByRole("heading", { name: "Your cancellation estimate" })).toBeVisible();
   await expect(page.getByText(/^Last supported deadline ·/)).toBeVisible();
+  await expect(page.locator(".chart-marker")).toHaveCount(1);
+  await expect(page.locator(".chart-threshold-label").filter({ hasText: "50% penalty" })).toHaveCount(1);
+});
+
+test("live results label check-in when it coincides with the final deadline", async ({ page }) => {
+  const policyText = "A 50% penalty applies from November 20, 2026 at 6:00 PM.";
+  await page.route("**/api/analyze", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        analysis: {
+          rules: [{
+            id: "single-deadline",
+            deadlineLocal: "2026-11-20T18:00",
+            penaltyPercent: "50",
+            evidenceQuote: policyText,
+            interpretation: "A 50% penalty starts at this deadline.",
+            status: "supported",
+            issue: "",
+          }],
+          unresolvedIssues: [],
+        },
+      }),
+    });
+  });
+
+  await page.goto("/");
+  await page.locator("#policy-text").fill(policyText);
+  await page.locator("#booking-amount").fill("1200");
+  await page.locator("#property-zone").fill("Asia/Tokyo");
+  await page.locator("#check-in").fill("2026-11-20T18:00");
+  await page.getByRole("button", { name: "Analyze policy" }).click();
+
+  await expect(page.getByRole("heading", { name: "Your cancellation estimate" })).toBeVisible();
+  await expect(page.locator(".range-caption").getByText(/^Check-in ·/)).toBeVisible();
+  await expect(page.getByText(/Check-in coincides with the last supported cancellation deadline/)).toBeVisible();
+  await expect(page.locator(".chart-marker")).toHaveCount(1);
 });
 
 test("loading the sample cancels an in-flight live analysis", async ({ page }) => {

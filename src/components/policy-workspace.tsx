@@ -113,17 +113,20 @@ export function PolicyWorkspace() {
       if (checkInResult && !checkInResult.ok) {
         contextNotes.push(`Check-in time could not be resolved (${checkInResult.error}); the timeline ends at the last supported deadline.`);
       }
-      if (validCheckIn !== null && validCheckIn <= lastRule.deadlineMs) {
+      if (validCheckIn !== null && validCheckIn < lastRule.deadlineMs) {
         contextNotes.push("Check-in occurs before the last supported cancellation deadline; the timeline ends at that deadline.");
+      } else if (validCheckIn === lastRule.deadlineMs) {
+        contextNotes.push("Check-in coincides with the last supported cancellation deadline; the timeline ends at check-in.");
       }
       if (!bookingCheck.data.checkInLocal) {
         contextNotes.push("Check-in was not provided, so the timeline ends at the last supported deadline.");
       }
 
       const proposedMin = firstRule.deadlineMs - 24 * 60 * 60 * 1000;
-      const maxMs = validCheckIn !== null && validCheckIn > lastRule.deadlineMs ? validCheckIn : lastRule.deadlineMs;
+      const endsAtCheckIn = validCheckIn !== null && validCheckIn >= lastRule.deadlineMs;
+      const maxMs = endsAtCheckIn ? validCheckIn : lastRule.deadlineMs;
       const minMs = Math.min(proposedMin, maxMs);
-      const endLabel = validCheckIn !== null && validCheckIn > lastRule.deadlineMs
+      const endLabel = endsAtCheckIn
         ? "Check-in"
         : "Last supported deadline";
       setLiveResult({

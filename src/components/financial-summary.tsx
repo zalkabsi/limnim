@@ -16,7 +16,14 @@ export function FinancialSummary({
     <>
       <div className="summary-grid" aria-label="Estimated cancellation outcome">
         <Card className="metric-card">
-          <div className="metric-label"><span className="metric-icon" aria-hidden="true">↗</span> Potential refund</div>
+          <div className="metric-label">
+            <span className="metric-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" focusable="false">
+                <path d="M7 17 17 7M8 7h9v9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </span>
+            Potential refund
+          </div>
           <strong className="metric-value" data-testid="refund-amount">{formatMoney(outcome.refund, booking.currency)}</strong>
           <span className="metric-sub">{100 - Number(outcome.penaltyPercent)}% of booking total</span>
         </Card>

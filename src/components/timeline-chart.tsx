@@ -17,6 +17,12 @@ function thresholdLabel(timeMs: number, zone: string): string {
   return DateTime.fromMillis(timeMs, { zone }).toFormat("LLL d · h:mm a");
 }
 
+function thresholdAnchor(x: number): "start" | "middle" | "end" {
+  if (x > chart.right - 100) return "end";
+  if (x < chart.left + 100) return "start";
+  return "middle";
+}
+
 export function TimelineChart({
   booking,
   rules,
@@ -36,7 +42,7 @@ export function TimelineChart({
   endLabel: string;
   outcome: FinancialOutcome;
 }) {
-  const visibleRules = rules.filter((rule) => rule.deadlineMs > minMs && rule.deadlineMs < maxMs);
+  const visibleRules = rules.filter((rule) => rule.deadlineMs > minMs && rule.deadlineMs <= maxMs);
   let previousY = refundY("0");
   let linePath = `M ${chart.left} ${previousY}`;
   for (const rule of visibleRules) {
@@ -82,12 +88,13 @@ export function TimelineChart({
           <path className="chart-line" d={linePath} />
           {visibleRules.map((rule) => {
             const x = xPosition(rule.deadlineMs, minMs, maxMs);
+            const anchor = thresholdAnchor(x);
             return (
               <g key={rule.id}>
                 <line className="chart-marker" x1={x} x2={x} y1={chart.top} y2={chart.bottom + 8} />
                 <circle className="chart-dot" cx={x} cy={refundY(rule.penaltyPercent)} r="6" />
-                <text className="chart-threshold-label" x={x} y={chart.bottom + 25} textAnchor="middle">{thresholdLabel(rule.deadlineMs, booking.propertyTimeZone)}</text>
-                <text className="chart-threshold-label" x={x} y={chart.top - 8} textAnchor="middle">{rule.penaltyPercent}% penalty</text>
+                <text className="chart-threshold-label" x={x} y={chart.bottom + 25} textAnchor={anchor}>{thresholdLabel(rule.deadlineMs, booking.propertyTimeZone)}</text>
+                <text className="chart-threshold-label" x={x} y={chart.top - 8} textAnchor={anchor}>{rule.penaltyPercent}% penalty</text>
               </g>
             );
           })}
