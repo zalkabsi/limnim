@@ -1,9 +1,9 @@
-import { chromium } from "playwright";
 import assert from "node:assert/strict";
-import { existsSync, mkdirSync, rmSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
-import { tmpdir } from "node:os";
+import { existsSync, mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { homedir, tmpdir } from "node:os";
 import { spawnSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
 
 const baseURL = process.env.REFUNDCURVE_DEMO_URL ?? "http://127.0.0.1:3000";
 const recordingDir = join(tmpdir(), "refundcurve-live-demo-" + process.pid);
@@ -15,6 +15,28 @@ const ambiguousPolicyText = "Cancellations within 48 hours of arrival may incur 
 const chromiumPath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH
   ?? (existsSync("/usr/bin/chromium") ? "/usr/bin/chromium" : undefined);
 const cues = [];
+
+function configurePlaywrightFfmpegFallback() {
+  if (process.env.PLAYWRIGHT_BROWSERS_PATH || process.platform !== "linux" || process.arch !== "x64") return;
+  if (!existsSync("/usr/bin/ffmpeg")) return;
+
+  const playwrightPath = fileURLToPath(import.meta.resolve("playwright-core"));
+  const browserInfo = JSON.parse(readFileSync(join(dirname(playwrightPath), "browsers.json"), "utf8"));
+  const revision = browserInfo.browsers.find((browser) => browser.name === "ffmpeg")?.revision;
+  if (!revision) return;
+
+  const defaultFfmpeg = join(homedir(), ".cache", "ms-playwright", `ffmpeg-${revision}`, "ffmpeg-linux");
+  if (existsSync(defaultFfmpeg)) return;
+
+  const fallbackRegistry = join(tmpdir(), "refundcurve-playwright");
+  const fallbackFfmpeg = join(fallbackRegistry, `ffmpeg-${revision}`, "ffmpeg-linux");
+  mkdirSync(dirname(fallbackFfmpeg), { recursive: true });
+  if (!existsSync(fallbackFfmpeg)) symlinkSync("/usr/bin/ffmpeg", fallbackFfmpeg);
+  process.env.PLAYWRIGHT_BROWSERS_PATH = fallbackRegistry;
+}
+
+configurePlaywrightFfmpegFallback();
+const { chromium } = await import("playwright");
 
 mkdirSync(recordingDir, { recursive: true });
 

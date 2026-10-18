@@ -8,18 +8,19 @@ Install the dependencies and start the app with the workspace proxy enabled:
 
 ```sh
 npm ci
-npx playwright install ffmpeg
-python3 -m pip install -r devpost/requirements-demo.txt
+python3 -m pip install --upgrade --target /tmp/refundcurve-demo-python -r devpost/requirements-demo.txt
 NODE_USE_ENV_PROXY=1 npm run dev
 ```
 
 In a second terminal, run:
 
 ```sh
-npm run demo:live
+PYTHONPATH=/tmp/refundcurve-demo-python npm run demo:live
 ```
 
 The live recording requires a funded OpenAI API account bound to the runtime secret `OPENAI_API_KEY`. Keep the server running. The script records captions, synthesizes narration, checks that the resulting MP4 has audio and video and lasts between one and three minutes, and only then replaces `devpost/assets/refundcurve-demo-narrated.mp4`. It never reads a real booking, uses a real policy, or displays the API key.
+
+The recorder uses Playwright's ffmpeg helper when available and falls back to `/usr/bin/ffmpeg` on Linux. On another platform, install the helper with `npx playwright install ffmpeg`.
 
 ## Scene outline
 
