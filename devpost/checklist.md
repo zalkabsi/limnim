@@ -92,7 +92,7 @@ Checked against the [official rules](https://learn-ai-basics.devpost.com/rules),
 ### Submission materials and form
 
 - [x] English project-description draft is ready at `devpost/submission-copy.md`; review the first-person learning paragraph so it matches the entrant's experience.
-- [ ] Upload a **1 to under 3 minute** demo video publicly to YouTube or Vimeo. A 78-second captioned screen recording of the app is ready at `devpost/assets/refundcurve-demo.mp4`; it has no spoken audio. The narration draft is at `devpost/demo-script.md`. The upload must show the app working on its intended platform and avoid third-party trademarks or copyrighted music/material unless permission is held.
+- [ ] Upload a **1 to under 3 minute** demo video publicly to YouTube or Vimeo. The 78-second captioned screen recording with synthetic narration is ready at `devpost/assets/refundcurve-demo-narrated.mp4`. It shows the local app with the fictional Tokyo sample and uses no music or personal booking data. The public upload is still pending.
 - [ ] Include the public video URL in the submission form.
 - [ ] Answer the required short-form question describing how the Devpost Learn Skill Pack was used.
 - [ ] Complete the required age-of-majority checkbox.

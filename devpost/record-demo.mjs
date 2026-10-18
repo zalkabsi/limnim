@@ -16,12 +16,20 @@ const browser = await chromium.launch({
   headless: true,
   ...(chromiumPath ? { executablePath: chromiumPath } : {}),
 });
+const warmupPage = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+try {
+  await warmupPage.goto(baseURL, { waitUntil: "domcontentloaded" });
+  await warmupPage.getByRole("heading", { name: /Know what cancellation could cost/i }).waitFor();
+} finally {
+  await warmupPage.close();
+}
 const context = await browser.newContext({
   viewport: { width: 1440, height: 900 },
   deviceScaleFactor: 1,
   recordVideo: { dir: videoDir, size: { width: 1440, height: 900 } },
 });
 const page = await context.newPage();
+const recordingStartedAt = performance.now();
 
 try {
   await page.goto(baseURL, { waitUntil: "domcontentloaded" });
@@ -38,7 +46,7 @@ try {
     }
   ` });
 
-  const caption = async (text, duration = 7_000) => {
+  const caption = async (text) => {
     await page.evaluate((label) => {
       let element = document.getElementById("refundcurve-demo-caption");
       if (!element) {
@@ -48,10 +56,15 @@ try {
       }
       element.textContent = label;
     }, text);
-    await page.waitForTimeout(duration);
   };
 
-  await caption("Hotel cancellation terms can be hard to compare.", 7_000);
+  const waitUntil = async (seconds) => {
+    const remaining = recordingStartedAt + seconds * 1_000 - performance.now();
+    if (remaining > 0) await page.waitForTimeout(remaining);
+  };
+
+  await caption("RefundCurve helps travelers see how a hotel's cancellation deadlines could affect what they get back.");
+  await waitUntil(9);
   await page.getByRole("button", { name: /Try sample booking/i }).click();
   const sampleHeading = page.getByRole("heading", { name: "Tokyo sample booking" });
   await sampleHeading.waitFor();
@@ -60,7 +73,8 @@ try {
     element.scrollIntoView({ block: "start", behavior: "instant" });
   });
   await expectAmounts("$1,200.00", "$0.00");
-  await caption("This fictional Tokyo booking starts at $1,200 USD.", 8_000);
+  await waitUntil(10);
+  await caption("This fictional Tokyo sample starts at $1,200, with no cancellation penalty before the first deadline.");
 
   const slider = page.getByRole("slider", { name: "Cancellation time" });
   const setTime = async (localTime) => {
@@ -74,31 +88,39 @@ try {
     }, instant);
   };
 
+  await waitUntil(20.5);
   await setTime("2026-11-20T18:00");
   await expectAmounts("$600.00", "$600.00");
-  await caption("Nov 20 at 6:00 PM JST: $600 refund, $600 penalty.", 12_000);
+  await waitUntil(21);
+  await caption("At the first deadline, the estimate changes to a $600 refund and a $600 penalty.");
+  await waitUntil(37.5);
   await setTime("2026-11-24T15:00");
   await expectAmounts("$0.00", "$1,200.00");
-  await caption("Nov 24 at 3:00 PM JST: the sample becomes non-refundable.", 12_000);
+  await waitUntil(38);
+  await caption("At the final deadline, this sample booking becomes non-refundable.");
 
+  await waitUntil(54.5);
   const evidence = page.locator(".evidence-item blockquote").first();
   await evidence.evaluate((element) => {
     element.scrollIntoView({ block: "center", behavior: "instant" });
   });
-  await caption("Each deadline links to the policy excerpt behind it.", 10_000);
+  await waitUntil(55);
+  await caption("Each step is tied to the policy text, so you can check what the estimate is based on.");
 
+  await waitUntil(66.5);
   await page.locator(".summary-grid").evaluate((element) => {
     element.scrollIntoView({ block: "start", behavior: "instant" });
   });
-  await caption("Every result is an estimate based on the policy text — never a promise of a refund.", 12_000);
-  await caption("RefundCurve — clarity before you cancel.", 8_000);
+  await waitUntil(67);
+  await caption("RefundCurve helps you read the terms. It doesn't cancel a booking or promise a refund.");
+  await waitUntil(78.4);
 } finally {
   const video = page.video();
   await context.close();
   await browser.close();
   const rawPath = await video.path();
   const encoded = spawnSync("ffmpeg", [
-    "-y", "-i", rawPath, "-an", "-c:v", "libx264", "-crf", "23", "-preset", "veryfast",
+    "-y", "-i", rawPath, "-t", "78.4", "-an", "-c:v", "libx264", "-crf", "23", "-preset", "veryfast",
     "-pix_fmt", "yuv420p", "-movflags", "+faststart", outputPath,
   ], { stdio: "inherit" });
   if (encoded.status !== 0) throw new Error("ffmpeg could not create the MP4 demo recording.");
