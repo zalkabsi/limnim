@@ -11,7 +11,8 @@
     "typecheck": "tsc --noEmit",
     "test:unit": "vitest run tests/unit",
     "test:integration": "vitest run tests/integration",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "demo:live": "node devpost/record-live-demo.mjs"
   },
   "dependencies": {
     "decimal.js": "10.6.0",

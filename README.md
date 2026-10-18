@@ -11,7 +11,7 @@ npm ci
 cp .env.example .env.local
 ```
 
-For live policy analysis, add your OpenAI API key to `.env.local`. Keep it server-side and do not commit or share it. The model can be changed with `OPENAI_MODEL`; the default is `gpt-5.6-luna`.
+For live policy analysis, add your OpenAI API key to `.env.local`. Keep it server-side and do not commit or share it. The model can be changed with `OPENAI_MODEL`; the default is `gpt-5.6-luna`. In managed workspaces that route traffic through a proxy, start the app with `NODE_USE_ENV_PROXY=1 npm run dev` so the server-side OpenAI request uses the configured proxy and TLS trust.
 
 ```sh
 npm run dev
@@ -41,10 +41,10 @@ The integration tests mock OpenAI and do not need an API key. Playwright uses Ch
 ## Demo outline
 
 1. Open the Tokyo example and move the timeline across both cancellation deadlines.
-2. If an API key is available, submit a short policy with two explicit percentage thresholds and inspect the quoted excerpts.
+2. Submit a fictional policy with two explicit percentage thresholds and inspect the quoted excerpts and calculated timeline.
 3. Submit a relative or incomplete deadline and confirm that RefundCurve explains the missing detail without showing a guessed amount.
 
-For a hackathon recording, keep the app local and avoid showing `.env.local`, API keys, or personal booking information.
+For the final narrated recording, install Playwright's ffmpeg helper with `npx playwright install ffmpeg` and install `devpost/requirements-demo.txt`. Start the app with `NODE_USE_ENV_PROXY=1 npm run dev`, then run `npm run demo:live` in another terminal. This performs two live analyses using fictional details and checks both the supported timeline and unresolved ambiguous case before replacing `devpost/assets/refundcurve-demo-narrated.mp4`. A funded OpenAI API account must be bound as `OPENAI_API_KEY`. The recording uses synthetic narration; review it before uploading. Keep the app local and avoid showing `.env.local`, API keys, or personal booking information.
 
 ## License
 

@@ -45,11 +45,11 @@ Build mode: fast
 - [ ] Integrated live core journey explored — after slice 2, so extraction/evidence feedback can shape final hardening
 - [ ] Final kick-the-tires exploration and feedback completed — after slice 3
 
-Progress note: The learner asked to continue past the first two hands-on checkpoints without reporting observations. The sample and integrated flows remain unreviewed by the learner. The original slice 3 commit (`557601d`) passed lint, typecheck, 18 unit tests, 8 integration tests, 4 browser flows, and the production build. The latest full review passed lint, typecheck, 29 unit tests, 10 integration tests, 7 browser flows, and the production build. `npm audit --omit=dev` reports zero vulnerabilities; the full audit still flags five high-severity paths to one development-only `braces` issue in Next.js lint tooling, for which npm reports no available fix. This workspace has no configured OpenAI API key, so live provider calls are covered by mocked tests rather than exercised against OpenAI.
+Progress note: The learner asked to continue past the first two hands-on checkpoints without reporting observations. The sample and integrated flows remain unreviewed by the learner. The original slice 3 commit (`557601d`) passed lint, typecheck, 18 unit tests, 8 integration tests, 4 browser flows, and the production build. Commit `500e07b` passed lint, typecheck, 29 unit tests, 10 integration tests, 8 end-to-end tests, the production build, and `git diff --check`. `npm audit --omit=dev` reports zero vulnerabilities; the full audit still flags five high-severity paths to one development-only `braces` issue in Next.js lint tooling, for which npm reports no available fix. The managed workspace confirms the restricted network policy and `OPENAI_API_KEY` runtime binding are ready, but a live request returned HTTP 429 for exhausted API credits. Live extraction remains unverified until the bound account has usable credits.
 
 ## Final Review
 
-- [x] Final code review complete — identified issues fixed and verified; learner confirmation to ship remains pending
+- [x] Final code review complete — identified issues fixed and verified; the learner authorized continuing through the repository push. Public video hosting and final Devpost submission remain pending.
 
 ## Code Tour and App Map
 
@@ -92,11 +92,12 @@ Checked against the [official rules](https://learn-ai-basics.devpost.com/rules),
 ### Submission materials and form
 
 - [x] English project-description draft is ready at `devpost/submission-copy.md`; review the first-person learning paragraph so it matches the entrant's experience.
-- [ ] Upload a **1 to under 3 minute** demo video publicly to YouTube or Vimeo. The 78-second captioned screen recording with synthetic narration is ready at `devpost/assets/refundcurve-demo-narrated.mp4`. It shows the local app with the fictional Tokyo sample and uses no music or personal booking data. The public upload is still pending.
+- [ ] Record and review the **1 to under 3 minute** live-extraction demo with `npm run demo:live`, then upload it publicly to YouTube or Vimeo. The recording shows fictional booking details, live AI extraction, exact supporting quotes, the calculated timeline, and an ambiguous policy that stays unresolved. The public upload is still pending.
 - [ ] Include the public video URL in the submission form.
 - [ ] Answer the required short-form question describing how the Devpost Learn Skill Pack was used.
-- [ ] Complete the required age-of-majority checkbox.
-- [ ] Register for the hackathon and confirm entrant eligibility, original-work ownership, and any required team authorization.
+- [x] Entrant confirmed completion of the required age-of-majority checkbox.
+- [ ] Register for the hackathon.
+- [x] Entrant confirmed hackathon eligibility, original-work ownership, and team authorization.
 - [ ] Submit all required Devpost fields before the deadline. Keep the repo/video available without charge or access restrictions through judging.
 
 The rules require a public repository and demo video; they do not list deployment of a public website as a submission requirement. Submission eligibility and the required personal attestations must be completed by the entrant.

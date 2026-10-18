@@ -1,18 +1,32 @@
-# RefundCurve Demo Narration
+# RefundCurve Live Demo
 
-Target video runtime: about 1 minute 18 seconds. The narration uses a relaxed pace with short pauses so viewers can inspect each change. The recording uses the fictional Tokyo sample, so no personal booking data or API key is needed.
+The recording uses two fictional policies and booking details. The first request demonstrates live AI extraction for a Tokyo booking; the second shows that a discretionary, relative deadline remains unresolved. The script checks the API request contains only the policy text and property time zone, verifies verbatim evidence and the calculated timeline, and checks that no estimate appears for the ambiguous policy.
 
-| Time | On-screen action | Narration |
-| --- | --- | --- |
-| 0:00–0:10 | Show the opening workspace and project name. | “This is RefundCurve. It helps travelers see how a hotel's cancellation deadlines could affect what they get back.” |
-| 0:10–0:21 | Choose **Try sample booking** and show the initial estimate. | “I'll use the fictional Tokyo sample. Before the first deadline, the potential refund is twelve hundred dollars, with no cancellation penalty.” |
-| 0:21–0:38 | Move the timeline to November 20, 2026, at 6:00 PM JST. | “At the first deadline, the estimate changes to a six-hundred-dollar refund and a six-hundred-dollar penalty. Move the slider past that cutoff to see the potential refund recalculate. The displayed amounts follow the selected date and time.” |
-| 0:38–0:55 | Move the timeline to November 24, 2026, at 3:00 PM JST. | “At the final deadline, the booking becomes non-refundable in this sample, so the estimated refund drops to zero. The full booking total now appears as the cancellation penalty. The penalty stays tied to the original booking total.” |
-| 0:55–1:07 | Show the evidence excerpts beside the timeline. | “Each step is tied to the policy text, so you can check what the estimate is based on. You can also inspect the quoted deadline and penalty.” |
-| 1:07–1:18 | Return to the full result view. | “RefundCurve helps you read the terms. It doesn't cancel bookings or promise refunds. Use the estimate to ask better questions before you decide.” |
+## Record the final demo
 
-The first-person wording is a draft. Adjust anything that does not sound like you before recording.
+Install the dependencies and start the app with the workspace proxy enabled:
 
-## Build the narrated video
+```sh
+npm ci
+npx playwright install ffmpeg
+python3 -m pip install -r devpost/requirements-demo.txt
+NODE_USE_ENV_PROXY=1 npm run dev
+```
 
-With the project dependencies installed and the app running locally, record the captioned screen capture with `node devpost/record-demo.mjs`. Then install `edge-tts` with `python3 -m pip install edge-tts` and run `python3 devpost/render-narrated-demo.py`. The script uses the en-US-AriaNeural synthetic voice, the workspace HTTPS proxy, and the configured CA bundle; it keeps TLS verification enabled and writes `assets/refundcurve-demo-narrated.mp4`.
+In a second terminal, run:
+
+```sh
+npm run demo:live
+```
+
+The live recording requires a funded OpenAI API account bound to the runtime secret `OPENAI_API_KEY`. Keep the server running. The script records captions, synthesizes narration, checks that the resulting MP4 has audio and video and lasts between one and three minutes, and only then replaces `devpost/assets/refundcurve-demo-narrated.mp4`. It never reads a real booking, uses a real policy, or displays the API key.
+
+## Scene outline
+
+1. Introduce RefundCurve and the fictional Tokyo booking.
+2. Explain the live extraction request and show the two supported deadlines and exact quoted evidence.
+3. Move the timeline through the $1,200/$0 starting point, the $600/$600 first threshold, and the $0/$1,200 final threshold.
+4. Submit the fictional ambiguous policy and show its unresolved status without an estimate or timeline.
+5. Close by noting that the booking and policies are fictional and the estimate is not a promise of a hotel's refund.
+
+The narration is synthetic. Review the final video before uploading it.

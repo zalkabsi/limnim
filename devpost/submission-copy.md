@@ -34,4 +34,4 @@ Use [`assets/refundcurve-thumbnail.png`](assets/refundcurve-thumbnail.png). It i
 
 ## Demo video
 
-The local captioned recording with synthetic narration is [`assets/refundcurve-demo-narrated.mp4`](assets/refundcurve-demo-narrated.mp4). Upload it publicly to YouTube or Vimeo before submitting the entry.
+Record the final live-extraction demo with `npm run demo:live`; the script writes the reviewed candidate to [`assets/refundcurve-demo-narrated.mp4`](assets/refundcurve-demo-narrated.mp4). The currently committed video is the earlier sample-only recording and does not show live AI extraction, so do not upload it as the final demo. Upload the validated live recording publicly to YouTube or Vimeo before submitting the entry.
