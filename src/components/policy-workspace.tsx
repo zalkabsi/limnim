@@ -79,7 +79,7 @@ export function PolicyWorkspace() {
       const parsed = AnalyzeResponseSchema.parse(payload);
       const resolved = resolveRules(parsed.analysis, bookingCheck.data.propertyTimeZone);
       const unresolvedById = new Map(resolved.unresolvedRules.map((rule) => [rule.id, rule]));
-      const displayAnalysis: PolicyAnalysis = {
+      const baseDisplayAnalysis: PolicyAnalysis = {
         ...parsed.analysis,
         rules: parsed.analysis.rules.map((rule) => {
           const unresolved = unresolvedById.get(rule.id);
@@ -93,7 +93,7 @@ export function PolicyWorkspace() {
       if (!firstRule || !lastRule) {
         setLiveResult({
           booking: bookingCheck.data,
-          analysis: displayAnalysis,
+          analysis: baseDisplayAnalysis,
           rules: resolved.rules,
           unresolvedIssues: resolved.unresolvedIssues,
           contextNotes,
@@ -110,11 +110,14 @@ export function PolicyWorkspace() {
         ? resolvePropertyTime(bookingCheck.data.checkInLocal, bookingCheck.data.propertyTimeZone)
         : null;
       const validCheckIn = checkInResult?.ok ? checkInResult.epochMs : null;
+      const postCheckInRules = validCheckIn === null
+        ? []
+        : resolved.rules.filter((rule) => rule.deadlineMs > validCheckIn);
       if (checkInResult && !checkInResult.ok) {
         contextNotes.push(`Check-in time could not be resolved (${checkInResult.error}); the timeline ends at the last supported deadline.`);
       }
       if (validCheckIn !== null && validCheckIn < lastRule.deadlineMs) {
-        contextNotes.push("Check-in occurs before the last supported cancellation deadline; the timeline ends at that deadline.");
+        contextNotes.push("At least one cancellation deadline falls after check-in. This prototype does not model post-check-in cancellations or no-show charges, so it cannot calculate a refund estimate for this policy and booking.");
       } else if (validCheckIn === lastRule.deadlineMs) {
         contextNotes.push("Check-in coincides with the last supported cancellation deadline; the timeline ends at check-in.");
       }
@@ -122,8 +125,21 @@ export function PolicyWorkspace() {
         contextNotes.push("Check-in was not provided, so the timeline ends at the last supported deadline.");
       }
 
+      const postCheckInRuleIds = new Set(postCheckInRules.map((rule) => rule.id));
+      const displayAnalysis: PolicyAnalysis = {
+        ...baseDisplayAnalysis,
+        rules: baseDisplayAnalysis.rules.map((rule) => {
+          if (rule.status !== "supported" || !postCheckInRuleIds.has(rule.id)) return rule;
+          return {
+            ...rule,
+            status: "needs_clarification",
+            issue: "This cancellation deadline occurs after the supplied check-in time; post-check-in cancellation terms are outside this prototype's supported scope.",
+          };
+        }),
+      };
+
       const proposedMin = firstRule.deadlineMs - 24 * 60 * 60 * 1000;
-      const endsAtCheckIn = validCheckIn !== null && validCheckIn >= lastRule.deadlineMs;
+      const endsAtCheckIn = validCheckIn !== null && validCheckIn <= lastRule.deadlineMs;
       const maxMs = endsAtCheckIn ? validCheckIn : lastRule.deadlineMs;
       const minMs = Math.min(proposedMin, maxMs);
       const endLabel = endsAtCheckIn
@@ -135,7 +151,7 @@ export function PolicyWorkspace() {
         rules: resolved.rules,
         unresolvedIssues: resolved.unresolvedIssues,
         contextNotes,
-        isCalculable: resolved.unresolvedIssues.length === 0,
+        isCalculable: resolved.unresolvedIssues.length === 0 && postCheckInRules.length === 0,
         minMs,
         maxMs,
         endLabel,
@@ -271,7 +287,7 @@ export function PolicyWorkspace() {
             })() : (
               <div className="no-calculation card" role="status">
                 <strong>No refund estimate yet</strong>
-                <p>The submitted policy did not yield a deadline with enough verified detail to calculate. Review the notes below or clarify the policy text.</p>
+                <p>The submitted policy and booking details did not produce a result this prototype can safely calculate. Review the notes below or clarify the policy text.</p>
               </div>
             )}
             <PolicyEvidence

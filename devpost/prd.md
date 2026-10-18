@@ -69,6 +69,7 @@ Use the learner's direction from `scope.md > Inspiration & Identity`: a precise,
 - **Analysis failure:** explain that extraction did not complete and offer retry; keep the sample available.
 - **Ambiguous, conflicting, or unsupported rule:** name the affected condition and mark its result unresolved.
 - **Invalid or out-of-order deadlines:** reject the inconsistent rules and explain that the calculation is unavailable.
+- **Deadline after check-in:** mark the post-check-in condition unresolved and withhold the estimate, since this prototype does not model cancellations during a stay or no-show charges.
 - **After closing:** booking documents are not stored persistently by the MVP.
 - **Third-party processing:** explain that submitted text may be processed by the configured AI provider; do not promise provider retention behavior without evidence.
 - **Product boundary:** estimates use the supplied policy only and do not verify payment, tax treatment, other contract terms, hotel enforcement, or local law.

@@ -21,7 +21,7 @@ Open <http://localhost:3000>. The Tokyo example works without credentials. Live 
 
 ## Supported behavior
 
-The first version calculates explicit local date-and-time cancellation thresholds with percentage penalties, including a clearly stated whole-booking non-refundable deadline. It leaves relative deadlines, missing years or times, ambiguous or unsupported time-zone abbreviations, daylight-saving ambiguities, conflicting or unlinked penalties, refund percentages, fixed fees, partial-night or per-room terms, taxes, and other unsupported rules unresolved. It does not save bookings, contact a hotel, or cancel a reservation.
+The first version calculates explicit local date-and-time cancellation thresholds with percentage penalties, including a clearly stated whole-booking non-refundable deadline. It leaves relative deadlines, missing years or times, ambiguous or unsupported time-zone abbreviations, daylight-saving ambiguities, deadlines after a supplied check-in, conflicting or unlinked penalties, refund percentages, fixed fees, partial-night or per-room terms, taxes, and other unsupported rules unresolved. It does not save bookings, contact a hotel, or cancel a reservation.
 
 The demo runs locally and has no public hosting or shared API-key rate limiter. Before deploying it with a server-side OpenAI key to the public internet, add abuse and usage controls for the analysis endpoint.
 
