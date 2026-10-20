@@ -34,4 +34,4 @@ Use [`assets/limnim-thumbnail.png`](assets/limnim-thumbnail.png), a 1536 × 1024
 
 ## Demo video
 
-Record the final live-extraction demo with `npm run demo:live`; the script writes the candidate to [`assets/limnim-demo-narrated.mp4`](assets/limnim-demo-narrated.mp4). Video production remains deferred until the application and submission materials are complete and a successful live extraction is available. Existing committed recordings predate the Limnim rebrand and must not be used as the final demo.
+The local 78-second sample-mode draft is [`assets/limnim-demo.mp4`](assets/limnim-demo.mp4); it demonstrates the sample workflow and does not claim live extraction. Record the final live-extraction demo with `npm run demo:live` after the API account has available credits. Existing committed recordings predate the Limnim rebrand and must not be used as the final demo.

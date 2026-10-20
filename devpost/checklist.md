@@ -49,7 +49,7 @@ Progress note: The learner asked to continue past the first two hands-on checkpo
 
 ## Final Review
 
-- [x] Final local code review complete — identified issues fixed and verified. The Limnim source updates remain unpublished; public video hosting and final Devpost submission remain pending.
+- [x] Final code review complete — identified issues fixed and verified. The Limnim source and refreshed assets are published in commit `8652ff3`; public final-video hosting and Devpost submission remain pending.
 
 ## Code Tour and App Map
 
@@ -106,18 +106,19 @@ The rules require a public repository and demo video; they do not list deploymen
 
 This update records the current workspace review. Earlier checkboxes and learner confirmations above are historical attestations; they do not independently verify the current Devpost account or submission form.
 
-- The final local verification results are recorded in `TEST_REPORT.md`: lint, typecheck, unit, API integration, production build, and all nine production-browser tests pass.
-- The no-credential Tokyo sample works end to end. A real OpenAI request returned HTTP 429 `credit_balance_exhausted`; a successful live extraction remains unverified.
+- The final verification results are recorded in `TEST_REPORT.md`: clean install, lint, typecheck, unit, API integration, production build, and nine browser tests against both dev and production pass. Public `main` includes the tested source in commit `8652ff3`.
+- The no-credential Tokyo sample works end to end. The latest live request returned `provider_quota_exhausted` from the provider's HTTP 429; a successful live extraction remains unverified.
 - Eligibility, registration, project provenance, ownership, team status where applicable, age-of-majority confirmation, the Skill Pack answer, and the current “Try it out” field require entrant review in Devpost.
-- The public demo video is still pending and remains the final project task. Do not record or upload it until the other blockers are resolved and a live run succeeds.
+- A captioned 78-second sample-mode draft is available at `devpost/assets/limnim-demo.mp4`; it does not show live extraction. The public final video remains pending until a funded live run succeeds.
 
 ## Limnim staff-response extension — October 20, 2026
 
-- [x] Rebrand the local app, package, written materials, future recording scripts, and repository remote as Limnim. The public repository rename is confirmed, but local source changes have not been pushed.
+- [x] Rebrand the app, package, written materials, recording scripts, and repository remote as Limnim. Public `main` now includes the source and refreshed images in commit `8652ff3`.
 - [x] Add a deterministic, copyable front-desk response using the selected time, local estimate, exact policy quote, and estimate disclaimer. The response is available for the fictional sample and calculable live results; it makes no AI request and sends no message.
 - [x] Preserve strict `after` semantics at the exact deadline and validate boundary wording against the quoted source.
 - [x] Refresh the README sample screenshot and 3:2 thumbnail from the local production build.
 - [x] Verify lint, type checking, 33 unit tests, 12 API integration tests, 9 Chromium flows against the dev server, 9 Chromium flows against the production build, and the production build. The final results are in `TEST_REPORT.md`.
 - [ ] Restore available OpenAI API credits and verify one live extraction. The previously checked account returned HTTP 429 `credit_balance_exhausted`.
-- [ ] Publish the updated local repository state and verify the submission form's current repository field.
-- [ ] Record and submit the public demo video as the last project task.
+- [x] Publish the updated repository state to public `main`.
+- [ ] Verify the current repository URL in Devpost's “Try it out” field.
+- [ ] Verify live extraction after restoring API credits, then record and submit the final public demo video.

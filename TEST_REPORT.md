@@ -24,14 +24,14 @@ The browser suite verifies the no-credential Tokyo sample, evidence display, uns
 
 ## Live provider check
 
-One real OpenAI Responses API request was made with the repository's prompt, JSON schema, model, and SDK using synthetic policy text. It returned HTTP 429 `credit_balance_exhausted`. The app presents an actionable, credential-safe message, and integration and browser tests verify that behavior. A successful live extraction has **not** been verified; do not describe it as working in submission materials until an authorized account with available credits completes a live check.
+The latest real request through the app used the repository's prompt, JSON schema, model, and SDK with synthetic policy text. It returned `provider_quota_exhausted`, which maps the provider's HTTP 429 `credit_balance_exhausted` response to a safe user-facing message. Integration and browser tests verify that response. A successful live extraction has **not** been verified; do not describe it as working in submission materials until an authorized account with available credits completes a live check.
 
 The API tests use a mock provider and do not prove account access. The demo recorder was not run because live extraction is unavailable and video production remains the final project task. No public deployment was attempted; the official challenge does not require one.
 
 ## Visual evidence
 
-The README screenshot at `devpost/assets/limnim-sample-workspace.png` was captured from the production build after loading the fictional Tokyo sample. It shows the refund summary, stepped timeline, exact cancellation deadlines, source excerpts, and prepared staff reply. The 3:2 Devpost thumbnail is `devpost/assets/limnim-thumbnail.png` (1536 × 1024, 181,414 bytes).
+The README screenshot at `devpost/assets/limnim-sample-workspace.png` was captured from the production build after loading the fictional Tokyo sample. It shows the refund summary, stepped timeline, exact cancellation deadlines, source excerpts, and prepared staff reply. The 3:2 Devpost thumbnail is `devpost/assets/limnim-thumbnail.png` (1536 × 1024, 181,414 bytes). A 78.4-second captioned sample-mode draft is at `devpost/assets/limnim-demo.mp4` (842,177 bytes); it is not a live-extraction demo or public submission video.
 
 ## Publication state
 
-The local origin points to `https://github.com/zalkabsi/limnim.git`, and the public repository rename is confirmed. The public `main` branch still points to the starting commit `0de61a4a3da18766a00d857ec2865b69badf63f1`; these local changes have not been published. No video was recorded, edited, rendered, uploaded, or submitted, in keeping with the explicit instruction to leave video production until last.
+The local origin points to `https://github.com/zalkabsi/limnim.git`. The tested Limnim source and refreshed images were published in commit [`8652ff3`](https://github.com/zalkabsi/limnim/commit/8652ff301f05d542e757e72f4e8d1c877360df2c); `main` was verified at that commit before this report-only follow-up. The local sample-mode draft has not been uploaded publicly. A final live-extraction video and Devpost submission remain pending.

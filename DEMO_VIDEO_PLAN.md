@@ -1,6 +1,6 @@
 # Demo Video Plan
 
-**State:** Planning only. The user explicitly deferred recording, editing, rendering, uploading, and submitting a demo video. This plan keeps that video as the final project task after code, external access, and entrant account actions are ready.
+**State:** A captioned sample-mode draft was recorded from the production build at `devpost/assets/limnim-demo.mp4` (78.4 seconds). It demonstrates the fictional sample, evidence, timeline, and guest reply, but not live extraction. A final public submission video remains pending because the configured OpenAI account has no available credits.
 
 ## Official constraints
 
@@ -13,7 +13,7 @@ Sources: [official rules](https://learn-ai-basics.devpost.com/rules), [challenge
 
 ## Readiness gates before recording
 
-1. Restore available credits on an authorized OpenAI account and successfully complete a live analysis. The current account returned HTTP 429 `credit_balance_exhausted`; mocked tests are not enough for this step.
+1. Restore available credits on an authorized OpenAI account and successfully complete a live analysis. The current account returned `provider_quota_exhausted`; mocked tests are not enough for this step.
 2. Run lint, typecheck, unit, integration, browser, and production-build checks on the final code.
 3. Confirm the submission copy and the required Skill Pack answer with the entrant.
 4. Confirm the public repository and entry fields are ready.
@@ -36,7 +36,7 @@ Sources: [official rules](https://learn-ai-basics.devpost.com/rules), [challenge
 - Copy `.env.example` to `.env.local` and set a server-side OpenAI API key with available API usage. Never show that file on screen.
 - Start locally with `NODE_USE_ENV_PROXY=1 npm run dev` in managed environments that require the configured proxy. The Tokyo sample does not need the key.
 - `npm run demo:live` is the existing live recording workflow. Run it only during the final video task; it overwrites `devpost/assets/limnim-demo-narrated.mp4`.
-- The committed MP4s predate the Limnim rebrand and the staff-response workflow. They were left untouched while video production is deferred; do not submit them as the final demo.
+- The two previously committed MP4s predate the Limnim rebrand and staff-response workflow; do not submit them as the final demo. The local `limnim-demo.mp4` is a captioned sample-mode draft, not a live-extraction video.
 
 ## Review checklist for the final artifact
 
