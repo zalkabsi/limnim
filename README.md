@@ -35,7 +35,11 @@ Of the broader hotel-operations ideas, this version focuses on repetitive cancel
 
 The first version calculates explicit local date-and-time cancellation thresholds with percentage penalties, including whether a penalty applies at the exact deadline (`on or after`) or only strictly later (`after`). It leaves unclear boundaries, relative deadlines, missing years or times, ambiguous or unsupported time-zone abbreviations, daylight-saving ambiguities, deadlines after a supplied check-in, conflicting or unlinked penalties, refund percentages, fixed fees, partial-night or per-room terms, taxes, and other unsupported rules unresolved. It does not save bookings, contact a hotel, send messages, or cancel a reservation.
 
-The app runs locally and has no public hosting or shared API-key rate limiter. Before deploying it with a server-side OpenAI key to the public internet, add abuse and usage controls for the analysis endpoint. The official hackathon rules require a runnable project, a public source repository, and a demonstration video; they do not require a public website deployment. See [HACKATHON_COMPLIANCE.md](HACKATHON_COMPLIANCE.md).
+## Public sample demo
+
+`render.yaml` defines a free Render web service for the fictional Tokyo workflow. It opens directly into the interactive sample and disables the live analysis UI and API route. No OpenAI key is needed or configured. Free Render services can sleep during inactivity, so the first visit after a quiet period may take a little longer. Create the service from the Render dashboard with **New → Blueprint** and select this repository.
+
+The local app can run live policy analysis with an OpenAI key. Before exposing live analysis to the public internet, add abuse and usage controls for the endpoint. The official hackathon rules require a runnable project, a public source repository, and a demonstration video; they do not require a public website deployment. See [HACKATHON_COMPLIANCE.md](HACKATHON_COMPLIANCE.md).
 
 ## Checks
 

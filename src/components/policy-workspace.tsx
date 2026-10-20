@@ -15,6 +15,7 @@ import { BookingInputSchema, type BookingInput } from "@/lib/validation/booking"
 import type { Booking, PolicyAnalysis, ResolvedRule } from "@/types/policy";
 
 const sample = resolveRules(tokyoAnalysis, tokyoBooking.propertyTimeZone);
+const isSampleDemo = process.env.NEXT_PUBLIC_SAMPLE_DEMO === "true";
 const checkIn = resolvePropertyTime(tokyoBooking.checkInLocal, tokyoBooking.propertyTimeZone);
 const firstThreshold = sample.rules[0]?.deadlineMs ?? 0;
 const sampleMin = firstThreshold - 60 * 60 * 1000;
@@ -42,7 +43,7 @@ function apiErrorMessage(payload: unknown): string | null {
 
 export function PolicyWorkspace() {
   const activeAnalysisRef = useRef<AbortController | null>(null);
-  const [sampleLoaded, setSampleLoaded] = useState(false);
+  const [sampleLoaded, setSampleLoaded] = useState(isSampleDemo);
   const [selectedMs, setSelectedMs] = useState(sampleMin);
   const [liveResult, setLiveResult] = useState<LiveResult | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -210,16 +211,25 @@ export function PolicyWorkspace() {
           </aside>
         </section>
 
-        <BookingForm isAnalyzing={isAnalyzing} error={analysisError} onAnalyze={analyzePolicy} />
+        {isSampleDemo && (
+          <aside className="demo-mode-banner" aria-label="Public sample demo">
+            <strong>Interactive sample demo</strong>
+            <span>This preview uses fictional Tokyo data. Live policy analysis is turned off.</span>
+          </aside>
+        )}
 
-        <section className="sample-card" aria-label="Try the example booking">
-          <div>
-            <p className="sample-label">A ready-to-explore example</p>
-            <h2>See how the curve works</h2>
-            <p>A fictional Tokyo hotel stay with two cancellation deadlines. Explore the exact moment the potential refund changes.</p>
-          </div>
-          <SampleButton onClick={loadSample} />
-        </section>
+        {!isSampleDemo && <BookingForm isAnalyzing={isAnalyzing} error={analysisError} onAnalyze={analyzePolicy} />}
+
+        {!isSampleDemo && (
+          <section className="sample-card" aria-label="Try the example booking">
+            <div>
+              <p className="sample-label">A ready-to-explore example</p>
+              <h2>See how the curve works</h2>
+              <p>A fictional Tokyo hotel stay with two cancellation deadlines. Explore the exact moment the potential refund changes.</p>
+            </div>
+            <SampleButton onClick={loadSample} />
+          </section>
+        )}
 
         {sampleLoaded && (
           <section className="workspace" aria-label="Tokyo sample results">

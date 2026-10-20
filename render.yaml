@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: limnim-sample-demo
+    runtime: node
+    plan: free
+    branch: main
+    buildCommand: npm ci && npm run build
+    startCommand: npm start
+    healthCheckPath: /
+    envVars:
+      - key: NODE_VERSION
+        value: 24.10.0
+      - key: NEXT_PUBLIC_SAMPLE_DEMO
+        value: "true"
