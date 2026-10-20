@@ -1,4 +1,5 @@
 import { DateTime } from "luxon";
+import { ruleEffectiveMs } from "@/lib/calculations/evaluate-policy";
 import { formatPropertyTime } from "@/lib/dates/property-time";
 import type { Booking, FinancialOutcome, ResolvedRule } from "@/types/policy";
 
@@ -42,11 +43,11 @@ export function TimelineChart({
   endLabel: string;
   outcome: FinancialOutcome;
 }) {
-  const visibleRules = rules.filter((rule) => rule.deadlineMs > minMs && rule.deadlineMs <= maxMs);
+  const visibleRules = rules.filter((rule) => ruleEffectiveMs(rule) > minMs && ruleEffectiveMs(rule) <= maxMs);
   let previousY = refundY("0");
   let linePath = `M ${chart.left} ${previousY}`;
   for (const rule of visibleRules) {
-    const x = xPosition(rule.deadlineMs, minMs, maxMs);
+    const x = xPosition(ruleEffectiveMs(rule), minMs, maxMs);
     const nextY = refundY(rule.penaltyPercent);
     linePath += ` L ${x} ${previousY} L ${x} ${nextY}`;
     previousY = nextY;
@@ -70,7 +71,7 @@ export function TimelineChart({
       <div className="chart-wrap">
         <svg className="timeline-svg" viewBox="0 0 980 224" role="img" aria-labelledby="chart-title chart-desc" data-testid="timeline-chart">
           <title id="chart-title">Refund amount over cancellation time</title>
-          <desc id="chart-desc">The potential refund steps down at each policy deadline. Teal shows the refundable amount; labels name each penalty change.</desc>
+          <desc id="chart-desc">The potential refund steps down when each penalty threshold takes effect. Teal shows the refundable amount; labels show whether a change applies on or after, or strictly after, its stated time.</desc>
           <defs>
             <linearGradient id="refundFill" x1="0" x2="0" y1="0" y2="1">
               <stop offset="0%" stopColor="#87c7ad" stopOpacity=".25" />
@@ -87,13 +88,15 @@ export function TimelineChart({
           <path className="chart-area" d={areaPath} />
           <path className="chart-line" d={linePath} />
           {visibleRules.map((rule) => {
-            const x = xPosition(rule.deadlineMs, minMs, maxMs);
+            const x = xPosition(ruleEffectiveMs(rule), minMs, maxMs);
             const anchor = thresholdAnchor(x);
             return (
               <g key={rule.id}>
                 <line className="chart-marker" x1={x} x2={x} y1={chart.top} y2={chart.bottom + 8} />
                 <circle className="chart-dot" cx={x} cy={refundY(rule.penaltyPercent)} r="6" />
-                <text className="chart-threshold-label" x={x} y={chart.bottom + 25} textAnchor={anchor}>{thresholdLabel(rule.deadlineMs, booking.propertyTimeZone)}</text>
+                <text className="chart-threshold-label" x={x} y={chart.bottom + 25} textAnchor={anchor}>
+                  {rule.deadlineBoundary === "exclusive" ? "After " : "On or after "}{thresholdLabel(rule.deadlineMs, booking.propertyTimeZone)}
+                </text>
                 <text className="chart-threshold-label" x={x} y={chart.top - 8} textAnchor={anchor}>{rule.penaltyPercent}% penalty</text>
               </g>
             );
@@ -104,7 +107,7 @@ export function TimelineChart({
       <ol className="deadline-list" aria-label="Policy penalty deadlines">
         {rules.map((rule) => (
           <li key={rule.id}>
-            <span>{formatPropertyTime(rule.deadlineMs, booking.propertyTimeZone)}</span>
+            <span>{rule.deadlineBoundary === "exclusive" ? "After " : "On or after "}{formatPropertyTime(rule.deadlineMs, booking.propertyTimeZone)}</span>
             <strong>{rule.penaltyPercent}% penalty</strong>
           </li>
         ))}

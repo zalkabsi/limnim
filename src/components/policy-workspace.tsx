@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { BookingForm } from "@/components/booking-form";
 import { FinancialSummary } from "@/components/financial-summary";
+import { GuestResponse } from "@/components/guest-response";
 import { PolicyEvidence } from "@/components/policy-evidence";
 import { SampleButton } from "@/components/sample-button";
 import { TimelineChart } from "@/components/timeline-chart";
@@ -139,12 +140,14 @@ export function PolicyWorkspace() {
       };
 
       const proposedMin = firstRule.deadlineMs - 24 * 60 * 60 * 1000;
-      const endsAtCheckIn = validCheckIn !== null && validCheckIn <= lastRule.deadlineMs;
-      const maxMs = endsAtCheckIn ? validCheckIn : lastRule.deadlineMs;
+      const postThresholdMinute = lastRule.deadlineBoundary === "exclusive" ? 60_000 : 0;
+      const finalTimelineMs = lastRule.deadlineMs + postThresholdMinute;
+      const endsAtCheckIn = validCheckIn !== null && validCheckIn <= finalTimelineMs;
+      const maxMs = endsAtCheckIn ? validCheckIn : finalTimelineMs;
       const minMs = Math.min(proposedMin, maxMs);
       const endLabel = endsAtCheckIn
         ? "Check-in"
-        : "Last supported deadline";
+        : lastRule.deadlineBoundary === "exclusive" ? "After last supported deadline" : "Last supported deadline";
       setLiveResult({
         booking: bookingCheck.data,
         analysis: displayAnalysis,
@@ -182,24 +185,24 @@ export function PolicyWorkspace() {
   return (
     <div className="app-shell">
       <header className="topbar">
-        <a className="brand" href="#top" aria-label="RefundCurve home">
+        <a className="brand" href="#top" aria-label="Limnim home">
           <span className="brand-mark" aria-hidden="true">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
               <path d="M3 17h4c3.5 0 4-10 8-10h5" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" />
               <path d="m17 4 3 3-3 3" stroke="currentColor" strokeWidth="2.3" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </span>
-          RefundCurve
+          Limnim
         </a>
-        <div className="topbar-note"><span className="status-dot" /> Hotel policy clarity</div>
+        <div className="topbar-note"><span className="status-dot" /> Hotel policy support</div>
       </header>
 
       <main className="main-content" id="top">
         <section className="hero" aria-labelledby="hero-title">
           <div>
-            <p className="eyebrow">A clearer way to decide</p>
-            <h1 id="hero-title">Know what cancellation could cost, <span>at every deadline.</span></h1>
-            <p className="hero-copy">Hotel policies are hard to read when money is on the line. RefundCurve turns the important dates into one clear timeline, with each change tied back to the policy.</p>
+            <p className="eyebrow">A clearer answer for every guest</p>
+            <h1 id="hero-title">Answer cancellation questions, <span>with evidence.</span></h1>
+            <p className="hero-copy">Limnim turns hotel cancellation terms into a verified refund timeline and a ready-to-review guest reply, so staff can explain the estimate and point to the exact policy wording.</p>
           </div>
           <aside className="hero-aside">
             <strong>Built for confidence, not guesswork</strong>
@@ -234,6 +237,7 @@ export function PolicyWorkspace() {
             </div>
 
             <FinancialSummary booking={tokyoBooking} selectedMs={selectedMs} outcome={outcome} />
+            <GuestResponse booking={tokyoBooking} selectedMs={selectedMs} outcome={outcome} />
             <TimelineChart
               booking={tokyoBooking}
               rules={sample.rules}
@@ -272,6 +276,7 @@ export function PolicyWorkspace() {
               return (
                 <>
                   <FinancialSummary booking={liveResult.booking} selectedMs={liveResult.selectedMs} outcome={liveOutcome} />
+                  <GuestResponse booking={liveResult.booking} selectedMs={liveResult.selectedMs} outcome={liveOutcome} />
                   <TimelineChart
                     booking={liveResult.booking}
                     rules={liveResult.rules}

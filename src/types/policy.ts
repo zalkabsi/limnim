@@ -1,6 +1,9 @@
+export type DeadlineBoundary = "inclusive" | "exclusive" | "unclear";
+
 export interface PolicyRule {
   id: string;
   deadlineLocal: string;
+  deadlineBoundary: DeadlineBoundary;
   penaltyPercent: string;
   evidenceQuote: string;
   interpretation: string;

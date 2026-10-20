@@ -23,11 +23,11 @@ Sources: [official rules](https://learn-ai-basics.devpost.com/rules), [challenge
 
 | Time | Screen action | Point to make |
 |---|---|---|
-| 0:00–0:15 | Open the workspace and state the hotel cancellation problem. | RefundCurve makes policy deadlines' financial consequences easier to compare. |
-| 0:15–0:40 | Load the clearly labelled Tokyo sample; move the timeline across both thresholds. | The sample works without an API request; amounts change at the exact property-local deadlines. |
-| 0:40–1:35 | Paste a fictional policy with two explicit dates, times, and percentage penalties; enter fictional booking details; run live analysis. | AI extracts language, the app verifies the exact excerpts, and deterministic code computes the result. |
-| 1:35–2:05 | Move the timeline and inspect each supporting quote. | The result remains traceable to source text and updates locally without another model call. |
-| 2:05–2:25 | Submit a relative or ambiguous rule and show the unresolved explanation, if the live run is stable. | Unsupported rules remain uncertain rather than receiving guessed amounts. |
+| 0:00–0:15 | Open the workspace and state the front-desk cancellation question. | Limnim prepares a clear, evidence-linked reply from the hotel's policy. |
+| 0:15–0:35 | Load the clearly labelled Tokyo sample and review the guest response. | The sample works without an API request; the response shows its quote and estimate caveat. |
+| 0:35–1:30 | Paste a fictional policy with one strict-after and one inclusive deadline, enter fictional reservation details, and run live analysis. | AI extracts language, the app verifies each quote and boundary, and deterministic code computes the result. |
+| 1:30–1:55 | Copy or review the response, then move the timeline through the exact strict-after boundary and one minute later. | The old penalty remains active at the strict boundary; the reply and amounts update locally after it. |
+| 1:55–2:20 | Inspect the supporting quote, then submit a relative or ambiguous rule. | Unsupported rules remain uncertain and produce no estimate or guest response. |
 | 2:25–2:40 | State the boundary and close on the product name. | This is an estimate from supplied text, not a guaranteed refund or legal conclusion. |
 
 ## Recording environment
@@ -35,7 +35,8 @@ Sources: [official rules](https://learn-ai-basics.devpost.com/rules), [challenge
 - Node.js 20.9 or newer (the repository was verified with Node.js 24.19.0), npm, the repository, and a Chromium browser.
 - Copy `.env.example` to `.env.local` and set a server-side OpenAI API key with available API usage. Never show that file on screen.
 - Start locally with `NODE_USE_ENV_PROXY=1 npm run dev` in managed environments that require the configured proxy. The Tokyo sample does not need the key.
-- `npm run demo:live` is the existing live recording workflow. Run it only during the final video task; it overwrites `devpost/assets/refundcurve-demo-narrated.mp4`.
+- `npm run demo:live` is the existing live recording workflow. Run it only during the final video task; it overwrites `devpost/assets/limnim-demo-narrated.mp4`.
+- The committed MP4s predate the Limnim rebrand and the staff-response workflow. They were left untouched while video production is deferred; do not submit them as the final demo.
 
 ## Review checklist for the final artifact
 

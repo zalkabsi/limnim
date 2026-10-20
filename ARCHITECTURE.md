@@ -1,6 +1,6 @@
 # Architecture
 
-RefundCurve is a single-page Next.js App Router app. The browser owns booking details and display state. A single server route sends only the pasted cancellation policy and property time zone to OpenAI for structured extraction. Validated policy rules then flow through deterministic date and money calculations in the browser.
+Limnim is a single-page Next.js App Router app. The browser owns booking details and display state. A single server route sends only the pasted cancellation policy and property time zone to OpenAI for structured extraction. Validated policy rules then flow through deterministic date and money calculations in the browser.
 
 ## Request and data flow
 
@@ -12,7 +12,7 @@ flowchart LR
   V -->|checked rules and issues| C[Property-time resolver and Decimal calculator]
   S[Tokyo sample fixture] --> C
   B[Booking amount and currency] --> C
-  C --> U[Summary, evidence, stepped timeline]
+  C --> U[Summary, reply composer, evidence, stepped timeline]
   U -->|local slider changes| C
 ```
 
@@ -20,9 +20,9 @@ flowchart LR
 2. `BookingForm` validates the amount, currency, required property time zone, optional check-in time, and pasted text. The amount and currency stay in the browser.
 3. The Tokyo sample is a local, prevalidated fixture. It makes no AI request and works without credentials.
 4. Live analysis sends `{ policyText, propertyTimeZone }` to the same-origin `/api/analyze` route. The handler limits the streamed body to 100,000 bytes and limits policy text to 15,000 characters, validates the JSON and IANA time zone, and checks that each proposed quote occurs exactly in the submitted text.
-5. The server also checks that dates, times, penalty percentages, penalty consequences, and explicit time-zone evidence agree with the source excerpt. Invalid or unsupported candidates become unresolved issues.
-6. `resolvePropertyTime` uses Luxon and rejects invalid, nonexistent, or ambiguous local times. `resolveRules` rejects conflicting or decreasing penalty schedules. `Decimal` computes penalties and refunds using the selected currency's minor-unit precision.
-7. The browser renders the estimate, next deadline, source excerpts, and SVG timeline. Moving the native range control recalculates locally and never calls the model again.
+5. The server also checks that dates, times, whether a threshold is inclusive or strictly after, penalty percentages, penalty consequences, and explicit time-zone evidence agree with the source excerpt. Invalid or unsupported candidates become unresolved issues.
+6. `resolvePropertyTime` uses Luxon and rejects invalid, nonexistent, or ambiguous local times. `resolveRules` rejects conflicting or decreasing penalty schedules and applies an exclusive `after` threshold only once the selected instant is strictly later. `Decimal` computes penalties and refunds using the selected currency's minor-unit precision.
+7. The browser renders the estimate, next deadline, source excerpts, SVG timeline, and a deterministic guest-response draft. The response combines the local calculation with the relevant verbatim quote and an estimate disclaimer; copying it is a browser clipboard action. Moving the native range control recalculates locally and never calls the model again.
 
 ## Components
 
@@ -36,10 +36,13 @@ flowchart LR
 | `src/lib/ai/validate-analysis.ts` | Cross-checks model values against the exact quoted evidence. |
 | `src/lib/dates/property-time.ts` | Resolves and formats property-local deadlines using IANA zones. |
 | `src/lib/calculations/evaluate-policy.ts` and `money.ts` | Checks supported schedules and computes decimal-safe financial outcomes. |
+| `src/lib/guest-response.ts` and `src/components/guest-response.tsx` | Builds and copies a source-linked staff reply from the current local result; no guest message is sent. |
 | `src/components/policy-workspace.tsx` | Owns live/sample state and the analysis request lifecycle. |
 | `src/components/financial-summary.tsx`, `policy-evidence.tsx`, `timeline-chart.tsx` | Presents the result, source text, and accessible timeline. |
 
 There is no database, authentication, background worker, booking-platform integration, or persistent user data. Closing the page clears booking state.
+
+The response composer supports one manual front-desk task: preparing an answer to a cancellation-cost question. It is not a general AI concierge and does not read PMS inventory, create room upgrades, dispatch housekeeping, book amenities, verify identity, or issue mobile keys.
 
 ## Configuration and services
 

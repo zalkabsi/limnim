@@ -3,12 +3,19 @@ import { DateTime } from "luxon";
 
 test("the Tokyo sample updates its estimate at exact policy boundaries", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: /Know what cancellation could cost/i })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Answer cancellation questions/i })).toBeVisible();
   await page.getByRole("button", { name: /Try sample booking/i }).click();
 
   await expect(page.getByRole("heading", { name: "Tokyo sample booking" })).toBeVisible();
   await expect(page.getByTestId("refund-amount")).toHaveText("$1,200.00");
   await expect(page.getByTestId("penalty-amount")).toHaveText("$0.00");
+  await expect(page.getByRole("heading", { name: "A clear answer, ready to review" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Copy guest response" })).toBeVisible();
+  await expect(page.locator(".guest-response-text")).toContainText("Estimated potential refund: $1,200.00.");
+  await page.context().grantPermissions(["clipboard-read", "clipboard-write"]);
+  await page.getByRole("button", { name: "Copy guest response" }).click();
+  await expect(page.locator(".guest-response-copy-status")).toContainText("Guest response copied");
+  await expect.poll(() => page.evaluate(() => navigator.clipboard.readText())).toContain("Estimated potential refund: $1,200.00.");
 
   const slider = page.getByRole("slider", { name: "Cancellation time" });
   const setTime = async (localTime: string) => {
@@ -32,8 +39,8 @@ test("the Tokyo sample updates its estimate at exact policy boundaries", async (
   await expect(page.locator(".evidence-item blockquote").last()).toContainText("Cancellations on or after November 24");
 });
 
-test("live policy analysis uses verified rules while keeping the booking total in the browser", async ({ page }) => {
-  const policyText = "Cancellation is free before November 20, 2026 at 6:00 PM. A 50% penalty begins at that time. From November 24, 2026 at 3:00 PM JST the entire booking is non-refundable.";
+test("live policy analysis preserves strict-after timing and prepares a verified guest reply", async ({ page }) => {
+  const policyText = "A 50% penalty applies after November 20, 2026 at 6:00 PM. From November 24, 2026 at 3:00 PM JST the entire booking is non-refundable.";
   let receivedBody: unknown;
   await page.route("**/api/analyze", async (route) => {
     receivedBody = route.request().postDataJSON();
@@ -46,15 +53,17 @@ test("live policy analysis uses verified rules while keeping the booking total i
             {
               id: "penalty-50",
               deadlineLocal: "2026-11-20T18:00",
+              deadlineBoundary: "exclusive",
               penaltyPercent: "50",
-              evidenceQuote: "Cancellation is free before November 20, 2026 at 6:00 PM. A 50% penalty begins at that time.",
-              interpretation: "A 50% penalty starts at the first deadline.",
+              evidenceQuote: "A 50% penalty applies after November 20, 2026 at 6:00 PM.",
+              interpretation: "A 50% penalty applies only after the first deadline.",
               status: "supported",
               issue: "",
             },
             {
               id: "penalty-100",
               deadlineLocal: "2026-11-24T15:00",
+              deadlineBoundary: "inclusive",
               penaltyPercent: "100",
               evidenceQuote: "From November 24, 2026 at 3:00 PM JST the entire booking is non-refundable.",
               interpretation: "The entire booking becomes non-refundable at the second deadline.",
@@ -79,7 +88,8 @@ test("live policy analysis uses verified rules while keeping the booking total i
   expect(receivedBody).toEqual({ policyText, propertyTimeZone: "Asia/Tokyo" });
   await expect(page.getByTestId("refund-amount")).toHaveText("$1,200.00");
   await expect(page.getByTestId("penalty-amount")).toHaveText("$0.00");
-  await expect(page.locator(".evidence-item blockquote").first()).toContainText("A 50% penalty begins at that time.");
+  await expect(page.locator(".evidence-item blockquote").first()).toContainText("A 50% penalty applies after November 20");
+  await expect(page.locator(".guest-response-text")).toContainText("This threshold applies after Fri, Nov 20, 2026 at 6:00 PM");
 
   const slider = page.getByRole("slider", { name: "Cancellation time" });
   const deadline = DateTime.fromISO("2026-11-20T18:00", { zone: "Asia/Tokyo" }).toMillis();
@@ -90,8 +100,19 @@ test("live policy analysis uses verified rules while keeping the booking total i
     input.dispatchEvent(new Event("input", { bubbles: true }));
     input.dispatchEvent(new Event("change", { bubbles: true }));
   }, deadline);
+  await expect(page.getByTestId("refund-amount")).toHaveText("$1,200.00");
+  await expect(page.getByTestId("penalty-amount")).toHaveText("$0.00");
+
+  await slider.evaluate((element, value) => {
+    const input = element as HTMLInputElement;
+    const setter = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, "value")?.set;
+    setter?.call(input, String(value));
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+  }, deadline + 60_000);
   await expect(page.getByTestId("refund-amount")).toHaveText("$600.00");
   await expect(page.getByTestId("penalty-amount")).toHaveText("$600.00");
+  await expect(page.locator(".guest-response-text")).toContainText("Estimated cancellation penalty: $600.00 (50%).");
 });
 
 test("an exhausted AI account gets clear guidance and leaves the sample available", async ({ page }) => {
@@ -132,6 +153,7 @@ test("a clarification-needed policy shows no guessed refund amount", async ({ pa
           rules: [{
             id: "relative-deadline",
             deadlineLocal: "",
+            deadlineBoundary: "unclear",
             penaltyPercent: "",
             evidenceQuote: policyText,
             interpretation: "The hotel decides whether this cancellation qualifies for a refund.",
@@ -187,6 +209,7 @@ test("live results label the final deadline when no check-in is entered", async 
           rules: [{
             id: "single-deadline",
             deadlineLocal: "2026-11-20T18:00",
+            deadlineBoundary: "inclusive",
             penaltyPercent: "50",
             evidenceQuote: policyText,
             interpretation: "A 50% penalty starts at this deadline.",
@@ -222,6 +245,7 @@ test("live results label check-in when it coincides with the final deadline", as
           rules: [{
             id: "single-deadline",
             deadlineLocal: "2026-11-20T18:00",
+            deadlineBoundary: "inclusive",
             penaltyPercent: "50",
             evidenceQuote: policyText,
             interpretation: "A 50% penalty starts at this deadline.",
@@ -258,6 +282,7 @@ test("withholds the estimate when a policy deadline falls after check-in", async
           rules: [{
             id: "post-check-in-deadline",
             deadlineLocal: "2026-11-20T18:00",
+            deadlineBoundary: "inclusive",
             penaltyPercent: "50",
             evidenceQuote: policyText,
             interpretation: "A 50% penalty starts at this deadline.",

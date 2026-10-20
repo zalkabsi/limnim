@@ -6,9 +6,10 @@ const supportedOutput = {
   rules: [{
     id: "deadline-1",
     deadlineLocal: "2026-11-20T18:00",
+    deadlineBoundary: "exclusive",
     penaltyPercent: "50",
     evidenceQuote: "Cancel before 2026-11-20 at 6:00 PM for no penalty; after that, a 50% penalty applies.",
-    interpretation: "A 50% penalty begins at the first deadline.",
+    interpretation: "A 50% penalty applies after the stated deadline.",
     status: "supported",
     issue: "",
   }],
@@ -172,6 +173,7 @@ describe("POST /api/analyze", () => {
     const clarificationRules = Array.from({ length: 20 }, (_, index) => ({
       id: `unclear-rule-${index + 1}`,
       deadlineLocal: "",
+      deadlineBoundary: "unclear",
       penaltyPercent: "",
       evidenceQuote: policyText,
       interpretation: "This cancellation term needs review.",

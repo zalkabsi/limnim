@@ -5,9 +5,9 @@ import { tmpdir } from "node:os";
 import { spawnSync } from "node:child_process";
 import assert from "node:assert/strict";
 
-const baseURL = process.env.REFUNDCURVE_DEMO_URL ?? "http://127.0.0.1:3000";
-const outputPath = join(process.cwd(), "devpost", "assets", "refundcurve-demo.mp4");
-const videoDir = join(tmpdir(), `refundcurve-video-${process.pid}`);
+const baseURL = process.env.LIMNIM_DEMO_URL ?? "http://127.0.0.1:3000";
+const outputPath = join(process.cwd(), "devpost", "assets", "limnim-demo.mp4");
+const videoDir = join(tmpdir(), `limnim-video-${process.pid}`);
 mkdirSync(videoDir, { recursive: true });
 
 const chromiumPath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH
@@ -19,7 +19,7 @@ const browser = await chromium.launch({
 const warmupPage = await browser.newPage({ viewport: { width: 1440, height: 900 } });
 try {
   await warmupPage.goto(baseURL, { waitUntil: "domcontentloaded" });
-  await warmupPage.getByRole("heading", { name: /Know what cancellation could cost/i }).waitFor();
+  await warmupPage.getByRole("heading", { name: /Answer cancellation questions/i }).waitFor();
 } finally {
   await warmupPage.close();
 }
@@ -33,10 +33,10 @@ const recordingStartedAt = performance.now();
 
 try {
   await page.goto(baseURL, { waitUntil: "domcontentloaded" });
-  await page.getByRole("heading", { name: /Know what cancellation could cost/i }).waitFor();
+  await page.getByRole("heading", { name: /Answer cancellation questions/i }).waitFor();
   await page.addStyleTag({ content: `
     .live-form { display: none !important; }
-    #refundcurve-demo-caption {
+    #limnim-demo-caption {
       position: fixed; z-index: 2147483647; left: 50%; bottom: 24px;
       transform: translateX(-50%); width: min(900px, calc(100vw - 48px));
       box-sizing: border-box; padding: 15px 24px; border-radius: 12px;
@@ -48,10 +48,10 @@ try {
 
   const caption = async (text) => {
     await page.evaluate((label) => {
-      let element = document.getElementById("refundcurve-demo-caption");
+      let element = document.getElementById("limnim-demo-caption");
       if (!element) {
         element = document.createElement("div");
-        element.id = "refundcurve-demo-caption";
+        element.id = "limnim-demo-caption";
         document.body.append(element);
       }
       element.textContent = label;
@@ -63,7 +63,7 @@ try {
     if (remaining > 0) await page.waitForTimeout(remaining);
   };
 
-  await caption("RefundCurve helps travelers see how a hotel's cancellation deadlines could affect what they get back.");
+  await caption("Limnim helps hotel staff answer cancellation questions with a clear estimate and the exact policy wording.");
   await waitUntil(9);
   await page.getByRole("button", { name: /Try sample booking/i }).click();
   const sampleHeading = page.getByRole("heading", { name: "Tokyo sample booking" });
@@ -73,6 +73,14 @@ try {
     element.scrollIntoView({ block: "start", behavior: "instant" });
   });
   await expectAmounts("$1,200.00", "$0.00");
+  await page.locator(".guest-response-card").evaluate((element) => {
+    element.scrollIntoView({ block: "start", behavior: "instant" });
+  });
+  await caption("This ready-to-review reply includes the selected time, estimate, policy quote, and a clear caveat.");
+  await waitUntil(15);
+  await page.locator(".timeline-card").evaluate((element) => {
+    element.scrollIntoView({ block: "start", behavior: "instant" });
+  });
   await waitUntil(10);
   await caption("This fictional Tokyo sample starts at $1,200, with no cancellation penalty before the first deadline.");
 
@@ -92,7 +100,7 @@ try {
   await setTime("2026-11-20T18:00");
   await expectAmounts("$600.00", "$600.00");
   await waitUntil(21);
-  await caption("At the first deadline, the estimate changes to a $600 refund and a $600 penalty.");
+  await caption("The Tokyo sample uses inclusive thresholds, so its penalty applies at each exact deadline.");
   await waitUntil(37.5);
   await setTime("2026-11-24T15:00");
   await expectAmounts("$0.00", "$1,200.00");
@@ -112,7 +120,7 @@ try {
     element.scrollIntoView({ block: "start", behavior: "instant" });
   });
   await waitUntil(67);
-  await caption("RefundCurve helps you read the terms. It doesn't cancel a booking or promise a refund.");
+  await caption("Staff review and send replies through their existing channel. Limnim doesn't message guests or promise a refund.");
   await waitUntil(78.4);
 } finally {
   const video = page.video();

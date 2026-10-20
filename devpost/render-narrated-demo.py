@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Add a timed synthetic voiceover to the captioned RefundCurve screen recording."""
+"""Add a timed synthetic voiceover to the captioned Limnim screen recording."""
 
 from __future__ import annotations
 
@@ -19,23 +19,24 @@ import edge_tts.communicate as communicate
 
 
 ASSET_DIR = Path(__file__).resolve().parent / "assets"
-OUTPUT_PATH = ASSET_DIR / "refundcurve-demo-narrated.mp4"
+OUTPUT_PATH = ASSET_DIR / "limnim-demo-narrated.mp4"
 VOICE = "en-US-AriaNeural"
 
 # IDs match the captions recorded by record-live-demo.mjs.
 NARRATION = [
-    ("opening", "Hotel cancellation terms can hide important changes. RefundCurve turns explicit terms into a timeline you can check.", "+0%"),
+    ("opening", "Hotel cancellation questions can take staff away from guests. Limnim prepares an evidence-linked answer.", "+0%"),
     ("booking", "Here is a fictional Tokyo booking: twelve hundred US dollars, with check-in on November twenty-fifth, twenty twenty-six.", "+0%"),
-    ("live-request", "RefundCurve sends only the fictional policy and Tokyo time zone for live AI extraction. The booking total stays in this browser.", "+0%"),
-    ("supported-result", "The live extraction found two explicit penalties: fifty percent on November twentieth, then one hundred percent on November twenty-fourth.", "+0%"),
+    ("live-request", "Limnim sends only the fictional policy and Tokyo time zone for live AI extraction. The booking total stays in this browser.", "+0%"),
+    ("supported-result", "The live extraction found a strictly-after fifty percent threshold, then an inclusive one hundred percent threshold.", "+0%"),
     ("evidence", "Each extracted deadline is linked to an exact sentence from the policy, so the evidence can be checked against the result.", "+0%"),
-    ("before-first", "Before the first deadline, the estimated refund is twelve hundred dollars, with no cancellation penalty.", "+0%"),
-    ("first-deadline", "At November twentieth, six p.m. Japan time, the estimate changes to six hundred dollars back and a six hundred dollar penalty.", "+0%"),
-    ("last-deadline", "At November twenty-fourth, three p.m. Japan time, the potential refund is zero. Check-in is the next day.", "+0%"),
+    ("copy-response", "The reply is calculated locally, includes the source wording, and can be reviewed before staff sends it.", "+0%"),
+    ("before-first", "Before the first deadline, the estimate is twelve hundred dollars back with no cancellation penalty.", "+0%"),
+    ("first-deadline", "At six p.m. the old rate still applies because the policy says after. At six-oh-one, the estimate changes to six hundred dollars back.", "+0%"),
+    ("last-deadline", "At November twenty-fourth, three p.m. Japan time, the inclusive rule makes the booking non-refundable.", "+0%"),
     ("ambiguous-policy", "This second fictional policy says a fifty percent fee may apply within forty-eight hours, at the hotel's discretion.", "+0%"),
     ("ambiguous-request", "The live analyzer checks whether those incomplete terms support a precise deadline and penalty.", "+0%"),
-    ("unresolved", "Because the policy gives no exact cutoff and makes the fee discretionary, RefundCurve shows no refund estimate.", "+0%"),
-    ("closing", "The policy and booking are fictional. RefundCurve shows evidence-based estimates, never a promise of a hotel's refund.", "+0%"),
+    ("unresolved", "Because the policy gives no exact cutoff and makes the fee discretionary, Limnim shows no refund estimate.", "+0%"),
+    ("closing", "The policy and booking are fictional. Staff should review each estimate; it is not confirmation of a hotel's refund.", "+0%"),
 ]
 
 
@@ -129,7 +130,7 @@ def render(video_path: Path, cue_path: Path) -> None:
 
     cues = read_cues(cue_path)
     video_duration = get_video_duration(video_path)
-    with tempfile.TemporaryDirectory(prefix="refundcurve-narration-") as temp_dir:
+    with tempfile.TemporaryDirectory(prefix="limnim-narration-") as temp_dir:
         temp_path = Path(temp_dir)
         asyncio.run(synthesize(temp_path))
 
@@ -156,7 +157,7 @@ def render(video_path: Path, cue_path: Path) -> None:
             f"loudnorm=I=-16:TP=-1.5:LRA=7,apad,atrim=duration={video_duration},"
             "aresample=48000[aout]"
         )
-        staging_path = OUTPUT_PATH.with_name("refundcurve-demo-narrated.tmp.mp4")
+        staging_path = OUTPUT_PATH.with_name("limnim-demo-narrated.tmp.mp4")
         command = [
             "ffmpeg", "-y", *inputs,
             "-filter_complex", ";".join(filter_parts),

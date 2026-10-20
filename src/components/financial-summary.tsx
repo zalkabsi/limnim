@@ -37,7 +37,9 @@ export function FinancialSummary({
           {outcome.nextRule ? (
             <>
               <strong className="deadline-time">{formatPropertyTime(outcome.nextRule.deadlineMs, booking.propertyTimeZone)}</strong>
-              <span className="deadline-consequence">Penalty becomes {outcome.nextRule.penaltyPercent}%</span>
+              <span className="deadline-consequence">
+                Penalty becomes {outcome.nextRule.penaltyPercent}% {outcome.nextRule.deadlineBoundary === "inclusive" ? "on or after" : "after"} this deadline
+              </span>
               <span className="deadline-zone">Property time · {booking.propertyTimeZone}</span>
             </>
           ) : (

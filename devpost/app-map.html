@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light">
-  <title>RefundCurve · App map</title>
+  <title>Limnim · App map</title>
   <style>
     :root {
       color-scheme: light;
@@ -73,19 +73,19 @@
 <body>
   <main>
     <header>
-      <p class="eyebrow">RefundCurve · Project guide</p>
-      <h1>From policy text to a clearer cancellation decision.</h1>
-      <p class="lede">RefundCurve extracts hotel cancellation deadlines, checks each result against the quoted policy, then calculates a potential refund locally and shows how it changes over time.</p>
-      <p class="snapshot">Code snapshot: <code>a2172be92733b22c032afc917df562bea4ece267</code>. This map is a snapshot and may drift as the code changes.</p>
+      <p class="eyebrow">Limnim · Project guide</p>
+      <h1>From policy text to a clear guest answer.</h1>
+      <p class="lede">Limnim verifies hotel cancellation deadlines against their exact policy wording, calculates the potential refund locally, and prepares a response hotel staff can review and copy.</p>
+      <p class="snapshot">Updated October 20, 2026 for the Limnim staff-response workflow. This local workspace update has not been published to the public repository.</p>
     </header>
 
     <section aria-labelledby="flow-heading">
       <h2 id="flow-heading">One action through the app</h2>
-      <p class="section-intro">A traveler submits a policy once. The server checks the model's evidence; the browser handles the financial calculation and timeline movement.</p>
+      <p class="section-intro">A front-desk team member submits a policy and reservation details once. The server checks the model's evidence; the browser calculates the estimate and prepares a guest response.</p>
       <div class="diagram-frame" tabindex="0" role="region" aria-label="Scrollable policy flow diagram">
         <svg class="flow" viewBox="0 0 800 450" role="img" aria-labelledby="flow-title flow-description">
-          <title id="flow-title">Policy submission to evidence-backed refund timeline</title>
-          <desc id="flow-description">The traveler submits policy text and booking details. The server sends policy text and the property time zone to OpenAI, validates the response and evidence, then the browser resolves the deadlines, calculates the money, and shows the timeline and quotes.</desc>
+          <title id="flow-title">Policy submission to evidence-backed guest response</title>
+          <desc id="flow-description">Hotel staff submit policy text and reservation details. The server sends policy text and property time zone to OpenAI, validates the response and evidence, then the browser resolves inclusive or exclusive deadlines, calculates the money, and prepares a copyable answer with its source quote.</desc>
           <defs>
             <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
               <path d="M 0 0 L 10 5 L 0 10 z" fill="#176a5d"></path>
@@ -100,7 +100,7 @@
           <g>
             <rect class="node" x="25" y="35" width="224" height="115" rx="15"></rect>
             <text class="step" x="43" y="61">01 · INPUT</text>
-            <text class="title" x="43" y="88">Traveler submits</text>
+            <text class="title" x="43" y="88">Staff submits</text>
             <text class="detail" x="43" y="111">BookingForm · PolicyWorkspace</text>
             <text class="detail" x="43" y="132">Policy + zone sent; total stays local</text>
           </g>
@@ -116,7 +116,7 @@
             <text class="step" x="569" y="61">03 · EVIDENCE GATE</text>
             <text class="title" x="569" y="88">Verify each rule</text>
             <text class="detail" x="569" y="111">Zod + exact quote checks</text>
-            <text class="detail" x="569" y="132">Date · time · rate · scope · zone</text>
+            <text class="detail" x="569" y="132">Date · time · boundary · rate · zone</text>
           </g>
           <g>
             <rect class="node node-client" x="551" y="270" width="224" height="115" rx="15"></rect>
@@ -128,14 +128,14 @@
           <g>
             <rect class="node node-client" x="288" y="270" width="224" height="115" rx="15"></rect>
             <text class="step" x="306" y="296">05 · VISIBLE RESULT</text>
-            <text class="title" x="306" y="323">Explore the outcome</text>
-            <text class="detail" x="306" y="346">Refund · penalty · next deadline</text>
-            <text class="detail" x="306" y="367">Timeline · supporting quote</text>
+            <text class="title" x="306" y="323">Review a guest answer</text>
+            <text class="detail" x="306" y="346">Refund · penalty · local time</text>
+            <text class="detail" x="306" y="367">Copy · timeline · policy quote</text>
           </g>
           <text class="detail" x="27" y="425">No database or account · booking values stay in page memory and clear on refresh or close.</text>
         </svg>
       </div>
-      <p class="flow-note">OpenAI receives the pasted policy text and property time zone for the requested analysis. The booking amount and currency remain in the browser. Unsupported or conflicting policy details, partial-night terms, and fixed fees block the live estimate instead of being guessed.</p>
+      <p class="flow-note">OpenAI receives the pasted policy text and property time zone for the requested analysis. The booking amount and currency remain in the browser. The guest response is generated locally from validated rules and is never sent automatically. Unsupported or conflicting policy details block the live estimate and reply.</p>
     </section>
 
     <section aria-labelledby="route-heading">
@@ -143,7 +143,7 @@
       <p class="reference"><strong>Reference route · not toured interactively.</strong> Open these locations in the editor to follow the same flow as the diagram.</p>
       <ol class="route">
         <li>
-          <strong>Start where the traveler acts.</strong>
+          <strong>Start where hotel staff act.</strong>
           <p><a href="../src/components/booking-form.tsx"><code>src/components/booking-form.tsx</code></a> collects policy and booking input. <a href="../src/components/policy-workspace.tsx"><code>src/components/policy-workspace.tsx</code></a> keeps the workflow, sample path, and live result together.</p>
         </li>
         <li>
@@ -151,8 +151,8 @@
           <p><a href="../src/app/api/analyze/route.ts"><code>src/app/api/analyze/route.ts</code></a> calls the provider through <a href="../src/lib/ai/analyze-handler.ts"><code>createAnalyzeHandler</code></a>. <a href="../src/lib/ai/validate-analysis.ts"><code>supportedRuleEvidenceIssue</code></a> cross-checks the model's values against the source quote.</p>
         </li>
         <li>
-          <strong>Trace a verified rule to its displayed result.</strong>
-          <p><a href="../src/lib/calculations/evaluate-policy.ts"><code>resolveRules</code> and <code>evaluatePolicy</code></a> apply property-local time boundaries; <a href="../src/lib/calculations/money.ts"><code>calculatePenalty</code> and <code>calculateRefund</code></a> do decimal arithmetic. <a href="../src/components/timeline-chart.tsx"><code>TimelineChart</code></a> and <a href="../src/components/policy-evidence.tsx"><code>PolicyEvidence</code></a> show the result and its source.</p>
+          <strong>Trace a verified rule to a guest-ready result.</strong>
+          <p><a href="../src/lib/calculations/evaluate-policy.ts"><code>resolveRules</code> and <code>evaluatePolicy</code></a> apply inclusive or strictly-after property-local boundaries; <a href="../src/lib/calculations/money.ts"><code>calculatePenalty</code> and <code>calculateRefund</code></a> do decimal arithmetic. <a href="../src/lib/guest-response.ts"><code>buildGuestResponse</code></a> combines the result and evidence for review.</p>
         </li>
       </ol>
     </section>
@@ -161,7 +161,8 @@
       <h2 id="change-heading">To change this, start here</h2>
       <ul class="pointers">
         <li><strong>Support another policy phrase</strong><span>Start with <a href="../src/lib/ai/prompt.ts"><code>prompt.ts</code></a>, then update the exact evidence rules in <a href="../src/lib/ai/validate-analysis.ts"><code>validate-analysis.ts</code></a> and its tests.</span></li>
-        <li><strong>Change how a deadline affects money</strong><span>Start with <a href="../src/lib/calculations/evaluate-policy.ts"><code>evaluate-policy.ts</code></a> and <a href="../src/lib/calculations/money.ts"><code>money.ts</code></a>; preserve exact-boundary and rounding checks.</span></li>
+        <li><strong>Change how a deadline affects money</strong><span>Start with <a href="../src/lib/calculations/evaluate-policy.ts"><code>evaluate-policy.ts</code></a> and <a href="../src/lib/calculations/money.ts"><code>money.ts</code></a>; preserve inclusive, strict-after, and rounding checks.</span></li>
+        <li><strong>Change the staff reply</strong><span>Start with <a href="../src/lib/guest-response.ts"><code>guest-response.ts</code></a>; keep amounts deterministic, quote the supporting policy, and preserve the estimate caveat.</span></li>
         <li><strong>Adjust the sample booking</strong><span>Edit the fictional fixture in <a href="../src/data/examples/tokyo-policy.ts"><code>tokyo-policy.ts</code></a>; it uses the same deterministic calculation path.</span></li>
         <li><strong>Change the visual treatment</strong><span>Start with <a href="../src/app/globals.css"><code>globals.css</code></a> and the relevant component. Keep the native range input keyboard-accessible.</span></li>
       </ul>
@@ -169,7 +170,7 @@
 
     <section aria-labelledby="practice-heading">
       <h2 id="practice-heading">A practice to reuse</h2>
-      <p class="practice"><strong>Make the evidence requirement testable before an AI output can drive a consequential result.</strong> RefundCurve's approved <a href="prd.md"><code>prd.md · Analysis and Rule Evidence</code></a> says each supported rule needs a source excerpt. <a href="../tests/unit/validate-analysis.test.ts"><code>tests/unit/validate-analysis.test.ts</code></a> checks matching and mismatching dates, times, percentages, and policy scope. In another AI-assisted project, define what an answer must prove, then test both the evidence that qualifies and the evidence that should leave the result unresolved.</p>
+      <p class="practice"><strong>Make the evidence requirement testable before an AI output can drive a consequential result.</strong> Limnim's <a href="prd.md"><code>prd.md · Analysis and Rule Evidence</code></a> requires exact policy evidence and a clear inclusive or strict-after boundary. <a href="../tests/unit/validate-analysis.test.ts"><code>tests/unit/validate-analysis.test.ts</code></a> checks matching and mismatching dates, times, percentages, boundaries, and policy scope. In another AI-assisted project, define what an answer must prove, then test both the evidence that qualifies and the evidence that should leave the result unresolved.</p>
     </section>
 
     <section aria-labelledby="run-heading">
@@ -182,7 +183,7 @@ npm run dev</code></pre>
     </section>
 
     <footer>
-      This is a technical reference for the current code snapshot, not a claim that the learner completed the route or final app review. Refund estimates are not guaranteed hotel refunds or legal advice.
+      This is a technical reference for the current local workspace, not a claim that the learner completed the route or final app review. Limnim's refund estimates are not confirmed hotel refunds or legal advice.
     </footer>
   </main>
 </body>

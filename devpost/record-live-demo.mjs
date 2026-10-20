@@ -5,12 +5,12 @@ import { homedir, tmpdir } from "node:os";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
-const baseURL = process.env.REFUNDCURVE_DEMO_URL ?? "http://127.0.0.1:3000";
-const recordingDir = join(tmpdir(), "refundcurve-live-demo-" + process.pid);
-const captionedVideoPath = join(recordingDir, "refundcurve-demo-live.mp4");
+const baseURL = process.env.LIMNIM_DEMO_URL ?? "http://127.0.0.1:3000";
+const recordingDir = join(tmpdir(), "limnim-live-demo-" + process.pid);
+const captionedVideoPath = join(recordingDir, "limnim-demo-live.mp4");
 const cuePath = join(recordingDir, "narration-cues.json");
-const finalVideoPath = join(process.cwd(), "devpost", "assets", "refundcurve-demo-narrated.mp4");
-const policyText = "Starting November 20, 2026 at 6:00 PM JST, a 50% cancellation penalty applies. Starting November 24, 2026 at 3:00 PM JST, the entire booking is non-refundable.";
+const finalVideoPath = join(process.cwd(), "devpost", "assets", "limnim-demo-narrated.mp4");
+const policyText = "After November 20, 2026 at 6:00 PM JST, a 50% cancellation penalty applies. Starting November 24, 2026 at 3:00 PM JST, the entire booking is non-refundable.";
 const ambiguousPolicyText = "Cancellations within 48 hours of arrival may incur a 50% penalty at the hotel's discretion.";
 const chromiumPath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH
   ?? (existsSync("/usr/bin/chromium") ? "/usr/bin/chromium" : undefined);
@@ -28,7 +28,7 @@ function configurePlaywrightFfmpegFallback() {
   const defaultFfmpeg = join(homedir(), ".cache", "ms-playwright", `ffmpeg-${revision}`, "ffmpeg-linux");
   if (existsSync(defaultFfmpeg)) return;
 
-  const fallbackRegistry = join(tmpdir(), "refundcurve-playwright");
+  const fallbackRegistry = join(tmpdir(), "limnim-playwright");
   const fallbackFfmpeg = join(fallbackRegistry, `ffmpeg-${revision}`, "ffmpeg-linux");
   mkdirSync(dirname(fallbackFfmpeg), { recursive: true });
   if (!existsSync(fallbackFfmpeg)) symlinkSync("/usr/bin/ffmpeg", fallbackFfmpeg);
@@ -59,10 +59,10 @@ function probeVideo(path) {
 
 async function caption(page, recordingStartedAt, id, text) {
   await page.evaluate((captionText) => {
-    let element = document.getElementById("refundcurve-demo-caption");
+    let element = document.getElementById("limnim-demo-caption");
     if (!element) {
       element = document.createElement("div");
-      element.id = "refundcurve-demo-caption";
+      element.id = "limnim-demo-caption";
       document.body.append(element);
     }
     element.textContent = captionText;
@@ -137,7 +137,7 @@ try {
   const warmupPage = await browser.newPage({ viewport: { width: 1440, height: 900 } });
   try {
     await warmupPage.goto(baseURL, { waitUntil: "domcontentloaded" });
-    await warmupPage.getByRole("heading", { name: /Know what cancellation could cost/i }).waitFor();
+    await warmupPage.getByRole("heading", { name: /Answer cancellation questions/i }).waitFor();
   } finally {
     await warmupPage.close();
   }
@@ -145,15 +145,16 @@ try {
   context = await browser.newContext({
     viewport: { width: 1440, height: 900 },
     deviceScaleFactor: 1,
+    permissions: ["clipboard-read", "clipboard-write"],
     recordVideo: { dir: recordingDir, size: { width: 1440, height: 900 } },
   });
   page = await context.newPage();
   recordingStartedAt = performance.now();
   await page.goto(baseURL, { waitUntil: "domcontentloaded" });
-  await page.getByRole("heading", { name: /Know what cancellation could cost/i }).waitFor();
-  await page.addStyleTag({ content: ".sample-card{display:none!important}#refundcurve-demo-caption{position:fixed;z-index:2147483647;left:50%;bottom:24px;transform:translateX(-50%);width:min(960px,calc(100vw - 48px));box-sizing:border-box;padding:15px 24px;border-radius:12px;background:rgba(17,45,37,.95);color:#fff;font:600 18px/1.35 system-ui,sans-serif;text-align:center;letter-spacing:.01em;box-shadow:0 8px 32px rgba(0,0,0,.18)}" });
+  await page.getByRole("heading", { name: /Answer cancellation questions/i }).waitFor();
+  await page.addStyleTag({ content: ".sample-card{display:none!important}#limnim-demo-caption{position:fixed;z-index:2147483647;left:50%;bottom:24px;transform:translateX(-50%);width:min(960px,calc(100vw - 48px));box-sizing:border-box;padding:15px 24px;border-radius:12px;background:rgba(17,45,37,.95);color:#fff;font:600 18px/1.35 system-ui,sans-serif;text-align:center;letter-spacing:.01em;box-shadow:0 8px 32px rgba(0,0,0,.18)}" });
 
-  let startedAt = await caption(page, recordingStartedAt, "opening", "Hotel cancellation terms can hide important changes. RefundCurve turns explicit terms into a timeline you can check.");
+  let startedAt = await caption(page, recordingStartedAt, "opening", "Hotel cancellation questions can take staff away from guests. Limnim prepares an evidence-linked answer.");
   await hold(page, startedAt, 9.5);
 
   const form = page.locator(".live-form");
@@ -166,7 +167,7 @@ try {
   startedAt = await caption(page, recordingStartedAt, "booking", "Here is a fictional Tokyo booking: twelve hundred US dollars, with check-in on November twenty-fifth, twenty twenty-six.");
   await hold(page, startedAt, 8.5);
 
-  startedAt = await caption(page, recordingStartedAt, "live-request", "RefundCurve sends only the fictional policy and Tokyo time zone for live AI extraction. The booking total stays in this browser.");
+  startedAt = await caption(page, recordingStartedAt, "live-request", "Limnim sends only the fictional policy and Tokyo time zone for live AI extraction. The booking total stays in this browser.");
   primaryAnalysis = await submitPolicy(page);
   await hold(page, startedAt, 10);
   await page.getByRole("heading", { name: "Your cancellation estimate" }).waitFor({ timeout: 60_000 });
@@ -178,21 +179,29 @@ try {
     assert.equal(rule.status, "supported");
     assert.ok(policyText.includes(rule.evidenceQuote), "each extracted quote must appear verbatim in the fictional policy");
   }
-  assert.deepEqual(primaryRules.map((rule) => [rule.deadlineLocal, rule.penaltyPercent]), [
-    ["2026-11-20T18:00", "50"],
-    ["2026-11-24T15:00", "100"],
+  assert.deepEqual(primaryRules.map((rule) => [rule.deadlineLocal, rule.deadlineBoundary, rule.penaltyPercent]), [
+    ["2026-11-20T18:00", "exclusive", "50"],
+    ["2026-11-24T15:00", "inclusive", "100"],
   ]);
   assert.deepEqual(primaryAnalysis.requestFields, ["policyText", "propertyTimeZone"]);
 
   const workspace = page.locator('.workspace[aria-label="Live policy analysis"]');
   await workspace.scrollIntoViewIfNeeded();
-  startedAt = await caption(page, recordingStartedAt, "supported-result", "The live extraction found two explicit penalties: fifty percent on November twentieth, then one hundred percent on November twenty-fourth.");
+  startedAt = await caption(page, recordingStartedAt, "supported-result", "The live extraction found a strictly-after fifty percent threshold, then an inclusive one hundred percent threshold.");
   await hold(page, startedAt, 9);
 
   const quoteBlocks = page.locator(".evidence-item blockquote");
   assert.equal(await quoteBlocks.count(), 2);
   const displayedQuotes = await quoteBlocks.allTextContents();
   assert.ok(primaryRules.every((rule) => displayedQuotes.some((quote) => quote.includes(rule.evidenceQuote))));
+  const guestResponse = page.locator(".guest-response-text");
+  await guestResponse.waitFor();
+  assert.ok((await guestResponse.innerText()).includes("Estimated potential refund:"));
+  await page.getByRole("button", { name: "Copy guest response" }).click();
+  await page.waitForFunction(() => Boolean(document.querySelector(".guest-response-copy-status")?.textContent?.trim()));
+  assert.match(await page.locator(".guest-response-copy-status").innerText(), /Guest response copied/i);
+  startedAt = await caption(page, recordingStartedAt, "copy-response", "The reply is calculated locally, includes the source wording, and can be reviewed before staff sends it.");
+  await hold(page, startedAt, 8);
   await page.locator(".evidence-card").scrollIntoViewIfNeeded();
   startedAt = await caption(page, recordingStartedAt, "evidence", "Each extracted deadline is linked to an exact sentence from the policy, so the evidence can be checked against the result.");
   await hold(page, startedAt, 8);
@@ -200,15 +209,19 @@ try {
   const initialAmounts = await readAmounts(page);
   assert.deepEqual(initialAmounts, { refund: "$1,200.00", penalty: "$0.00" });
   await page.locator(".summary-grid").scrollIntoViewIfNeeded();
-  startedAt = await caption(page, recordingStartedAt, "before-first", "Before the first deadline, the estimated refund is twelve hundred dollars, with no cancellation penalty.");
+  startedAt = await caption(page, recordingStartedAt, "before-first", "Before the first deadline, the estimate is twelve hundred dollars back with no cancellation penalty.");
   await hold(page, startedAt, 8);
 
   const slider = page.locator("#cancellation-time");
   await setTime(slider, "2026-11-20T18:00:00+09:00");
+  await page.waitForFunction(() => document.querySelector('[data-testid="refund-amount"]')?.textContent?.trim() === "$1,200.00");
+  const atFirstDeadlineAmounts = await readAmounts(page);
+  assert.deepEqual(atFirstDeadlineAmounts, { refund: "$1,200.00", penalty: "$0.00" });
+  await setTime(slider, "2026-11-20T18:01:00+09:00");
   await page.waitForFunction(() => document.querySelector('[data-testid="refund-amount"]')?.textContent?.trim() === "$600.00");
   const firstDeadlineAmounts = await readAmounts(page);
   assert.deepEqual(firstDeadlineAmounts, { refund: "$600.00", penalty: "$600.00" });
-  startedAt = await caption(page, recordingStartedAt, "first-deadline", "At November twentieth, six p.m. Japan time, the estimate changes to six hundred dollars back and a six hundred dollar penalty.");
+  startedAt = await caption(page, recordingStartedAt, "first-deadline", "At six p.m. the old rate still applies because the policy says after. At six-oh-one, the estimate changes to six hundred dollars back.");
   await hold(page, startedAt, 9);
 
   await setTime(slider, "2026-11-24T15:00:00+09:00");
@@ -217,10 +230,11 @@ try {
   assert.deepEqual(lastDeadlineAmounts, { refund: "$0.00", penalty: "$1,200.00" });
   timeline = {
     beforeFirstDeadline: initialAmounts,
+    atExclusiveDeadline: atFirstDeadlineAmounts,
     firstDeadline: firstDeadlineAmounts,
     lastDeadline: lastDeadlineAmounts,
   };
-  startedAt = await caption(page, recordingStartedAt, "last-deadline", "At November twenty-fourth, three p.m. Japan time, the potential refund is zero. Check-in is the next day.");
+  startedAt = await caption(page, recordingStartedAt, "last-deadline", "At November twenty-fourth, three p.m. Japan time, the inclusive rule makes the booking non-refundable.");
   await hold(page, startedAt, 8.2);
 
   await form.scrollIntoViewIfNeeded();
@@ -237,10 +251,10 @@ try {
   assert.equal(await page.locator(".timeline-card").count(), 0, "ambiguous policy must not show a refund timeline");
 
   await workspace.scrollIntoViewIfNeeded();
-  startedAt = await caption(page, recordingStartedAt, "unresolved", "Because the policy gives no exact cutoff and makes the fee discretionary, RefundCurve shows no refund estimate.");
+  startedAt = await caption(page, recordingStartedAt, "unresolved", "Because the policy gives no exact cutoff and makes the fee discretionary, Limnim shows no refund estimate.");
   await hold(page, startedAt, 8);
   await page.locator(".evidence-card").scrollIntoViewIfNeeded();
-  startedAt = await caption(page, recordingStartedAt, "closing", "The policy and booking are fictional. RefundCurve shows evidence-based estimates, never a promise of a hotel's refund.");
+  startedAt = await caption(page, recordingStartedAt, "closing", "The policy and booking are fictional. Staff should review each estimate; it is not confirmation of a hotel's refund.");
   await hold(page, startedAt, 9.1);
   completed = true;
 } finally {

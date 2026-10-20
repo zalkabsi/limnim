@@ -8,6 +8,7 @@ const MAX_COMBINED_UNRESOLVED_ISSUES = MAX_PROVIDER_UNRESOLVED_ISSUES + MAX_POLI
 export const PolicyRuleSchema = z.object({
   id: z.string().min(1).max(60),
   deadlineLocal: z.string().max(25),
+  deadlineBoundary: z.enum(["inclusive", "exclusive", "unclear"]),
   penaltyPercent: z.string().max(12),
   evidenceQuote: z.string().max(1200),
   interpretation: z.string().trim().min(1).max(500),
@@ -15,6 +16,9 @@ export const PolicyRuleSchema = z.object({
   issue: z.string().max(500),
 }).strict().superRefine((rule, context) => {
   if (rule.status === "supported") {
+    if (rule.deadlineBoundary === "unclear") {
+      context.addIssue({ code: "custom", path: ["deadlineBoundary"], message: "Supported rules need a clear inclusive or exclusive deadline." });
+    }
     if (!localDateTimePattern.test(rule.deadlineLocal)) {
       context.addIssue({ code: "custom", path: ["deadlineLocal"], message: "Supported deadlines need a complete local date and time." });
     }
@@ -74,10 +78,11 @@ export const cancellationAnalysisJsonSchema = {
       items: {
         type: "object",
         additionalProperties: false,
-        required: ["id", "deadlineLocal", "penaltyPercent", "evidenceQuote", "interpretation", "status", "issue"],
+        required: ["id", "deadlineLocal", "deadlineBoundary", "penaltyPercent", "evidenceQuote", "interpretation", "status", "issue"],
         properties: {
           id: { type: "string", minLength: 1, maxLength: 60 },
           deadlineLocal: { type: "string", maxLength: 25, description: "YYYY-MM-DDTHH:mm in the property's IANA time zone; empty only when it cannot be resolved from explicit policy text." },
+          deadlineBoundary: { type: "string", enum: ["inclusive", "exclusive", "unclear"], description: "Whether the penalty applies at the exact stated instant (inclusive), only strictly after it (exclusive), or cannot be determined from the quoted wording (unclear)." },
           penaltyPercent: { type: "string", maxLength: 12, description: "A decimal percentage from 0 through 100; use 100 only when the entire booking amount is explicitly non-refundable; use an empty string if the penalty cannot be resolved." },
           evidenceQuote: { type: "string", maxLength: 1200, description: "An exact, contiguous excerpt copied verbatim from the submitted policy, or empty when no excerpt supports this candidate." },
           interpretation: { type: "string", minLength: 1, maxLength: 500 },

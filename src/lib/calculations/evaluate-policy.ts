@@ -24,6 +24,12 @@ export function resolveRules(
       unresolvedRules.push({ ...rule, status: "needs_clarification", issue });
       continue;
     }
+    if (rule.deadlineBoundary === "unclear") {
+      const issue = `The policy wording does not establish whether the penalty applies at or only after “${rule.deadlineLocal}”.`;
+      unresolvedIssues.push(issue);
+      unresolvedRules.push({ ...rule, status: "needs_clarification", issue });
+      continue;
+    }
     const resolved = resolvePropertyTime(rule.deadlineLocal, propertyTimeZone);
     if (!resolved.ok) {
       const issue = `Could not resolve “${rule.deadlineLocal}” (${resolved.error}).`;
@@ -54,8 +60,8 @@ export function resolveRules(
   for (const rule of rules) {
     const previous = consistentRules.at(-1);
     if (previous && previous.deadlineMs === rule.deadlineMs) {
-      if (!new Decimal(previous.penaltyPercent).eq(rule.penaltyPercent)) {
-        const issue = "Different penalty percentages apply at the same local deadline.";
+      if (!new Decimal(previous.penaltyPercent).eq(rule.penaltyPercent) || previous.deadlineBoundary !== rule.deadlineBoundary) {
+        const issue = "Conflicting penalty terms apply at the same local deadline.";
         unresolvedIssues.push(issue);
         return {
           rules: [],
@@ -86,8 +92,8 @@ export function evaluatePolicy(
   rules: ResolvedRule[],
   selectedMs: number,
 ): FinancialOutcome {
-  const activeRule = [...rules].reverse().find((rule) => rule.deadlineMs <= selectedMs);
-  const nextRule = rules.find((rule) => rule.deadlineMs > selectedMs);
+  const activeRule = [...rules].reverse().find((rule) => isRuleActiveAt(rule, selectedMs));
+  const nextRule = rules.find((rule) => !isRuleActiveAt(rule, selectedMs));
   const penaltyPercent = activeRule?.penaltyPercent ?? "0";
   const penalty = calculatePenalty(amount, penaltyPercent, currency);
 
@@ -98,4 +104,14 @@ export function evaluatePolicy(
     activeRule,
     nextRule,
   };
+}
+
+export function isRuleActiveAt(rule: ResolvedRule, selectedMs: number): boolean {
+  return rule.deadlineBoundary === "inclusive"
+    ? rule.deadlineMs <= selectedMs
+    : rule.deadlineBoundary === "exclusive" && rule.deadlineMs < selectedMs;
+}
+
+export function ruleEffectiveMs(rule: ResolvedRule): number {
+  return rule.deadlineBoundary === "exclusive" ? rule.deadlineMs + 1 : rule.deadlineMs;
 }

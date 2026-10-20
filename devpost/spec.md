@@ -3,13 +3,13 @@ doc: spec
 status: approved
 ---
 
-# RefundCurve — Technical Spec
+# Limnim — Technical Spec
 
 ## How This Works, In Plain Language
 
 The traveler enters the hotel policy and booking details on one page. The app sends only the policy text and the property's time zone to OpenAI once, asking it to identify supported cancellation deadlines and quote the exact words that support each one. The app checks that response before using it. It never asks AI to calculate money.
 
-RefundCurve then uses ordinary code to turn each checked deadline into a penalty percentage. It uses the booking amount the traveler entered to calculate the penalty and possible refund. A timeline lets the traveler move a time selector and see the amounts update immediately; moving it does not call AI again. Selecting a rule also shows its original policy excerpt.
+Limnim then uses ordinary code to turn each checked deadline into a penalty percentage. It uses the booking amount the traveler entered to calculate the penalty and possible refund. A timeline lets the traveler move a time selector and see the amounts update immediately; moving it does not call AI again. Selecting a rule also shows its original policy excerpt.
 
 The sample booking uses the same calculator but skips AI, so it works without an API key. Nothing is saved after the page is closed. This is a small web app with one server route for AI analysis, rather than a database or a larger service setup.
 
@@ -50,7 +50,7 @@ Use the versions shown as the researched baseline for the draft; verify package 
 
 ## Where It Runs and How Someone Tries It
 
-RefundCurve runs locally in a browser, with the Next.js development server handling live AI requests. Install Node.js 24 LTS, then from the project directory:
+Limnim runs locally in a browser, with the Next.js development server handling live AI requests. Install Node.js 24 LTS, then from the project directory:
 
 ```sh
 npm install
@@ -91,7 +91,7 @@ If any policy rule remains unresolved or the supported deadlines conflict, the l
 
 ### Property-Time Date Helper
 
-Validates IANA time-zone names and converts usable local date/time thresholds to instants. It detects invalid, missing, ambiguous, or nonexistent deadline times and passes those cases to the unresolved state. Exact threshold instants use the new penalty at the boundary. Implements `prd.md > Financial Outcome` and `prd.md > States and Boundaries`.
+Validates IANA time-zone names and converts usable local date/time thresholds to instants. It detects invalid, missing, ambiguous, or nonexistent deadline times and passes those cases to the unresolved state. Inclusive thresholds apply at the exact instant; exclusive `after` thresholds apply only to later times. Implements `prd.md > Financial Outcome` and `prd.md > States and Boundaries`.
 
 ### Rule Evaluator and Money Helper
 
@@ -123,7 +123,7 @@ Live extraction output is accepted only when the response passes Zod validation,
 ## File Structure
 
 ```text
-refundcurve/
+limnim/
 ├── .env.example                  # Server-side key/model variable names; no secrets
 ├── .gitignore                    # Excludes .env.local, node_modules, and build output
 ├── LICENSE                       # MIT license for the public project
@@ -248,3 +248,9 @@ The app will calculate only when it can turn a clearly stated local date-and-tim
 - Confirm during review that Luxon is acceptable and that relative-duration deadlines can remain unresolved in the first demo. These are the only proposed technical/supported-rule boundaries awaiting the learner's approval.
 - At implementation, verify current package compatibility, exact patch versions, model availability/pricing, and the account-specific rate limit before pinning dependencies and recording the demo.
 - No product-approval questions remain in `prd.md > Open Questions`.
+
+## Post-build amendment — October 20, 2026
+
+The structured rule records `deadlineBoundary` as `inclusive`, `exclusive`, or `unclear`. The server validates that value against the quoted wording; unclear or mismatched boundaries remain unresolved. The browser applies exclusive thresholds only when the selected instant is strictly later than the stated deadline.
+
+The app also includes a deterministic guest-response composer for hotel staff. It combines a selected-time calculation with a relevant verbatim quote and an estimate disclaimer. It runs in the browser and copies through the browser clipboard; no message is sent. This is a limited extension of the approved cancellation workflow, not a general concierge or PMS integration.

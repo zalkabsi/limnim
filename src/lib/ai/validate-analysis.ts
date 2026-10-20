@@ -1,5 +1,5 @@
 import { DateTime } from "luxon";
-import type { PolicyRule } from "@/types/policy";
+import type { DeadlineBoundary, PolicyRule } from "@/types/policy";
 
 const monthNumbers: Record<string, number> = {
   jan: 1, january: 1,
@@ -159,23 +159,34 @@ function consequenceMatchesDeadline(
   rule: PolicyRule,
   deadline: { date: Mention; time: ClockTime },
   consequencePosition: number,
-): boolean {
+): Exclude<DeadlineBoundary, "unclear"> | null {
   const quote = rule.evidenceQuote;
   const deadlineStart = Math.min(deadline.date.start, deadline.time.start);
   const deadlineEnd = Math.max(deadline.date.end, deadline.time.end);
   const deadlineCenter = (deadlineStart + deadlineEnd) / 2;
-  const relationStart = Math.max(0, Math.min(deadlineEnd, consequencePosition));
-  const relationEnd = Math.min(quote.length, Math.max(deadlineStart, consequencePosition) + 80);
-  if (/\b(?:before|until|prior to|no later than|by)\b/i.test(quote.slice(relationStart, relationEnd))) return false;
+  const relationPattern = /\b(?:on\s+or\s+after|on\s+or\s+later|or\s+after|or\s+later|thereafter|after|from|starting(?:\s+at)?|beginning(?:\s+at)?|begins?(?:\s+at)?|starts?(?:\s+at)?|takes\s+effect(?:\s+at)?|effective(?:\s+from|\s+as\s+of)?|as\s+of|on|at|until|before|prior\s+to|no\s+later\s+than|by)\b/gi;
   const linkTerms = [
-    ...[...quote.matchAll(/\b(?:on\s+or\s+after|or\s+after|after|thereafter|or\s+later|from|starting|beginning|begins?|starts?|takes effect|effective(?:\s+from)?|as of|on|until|before|prior to|no later than|by)\b/gi)]
-      .map((match) => ({ index: match.index ?? 0, kind: /^(?:until|before|prior to|no later than|by)$/i.test(match[0]) ? "before" as const : "after" as const })),
+    ...[...quote.matchAll(relationPattern)].flatMap((match) => {
+      const index = match.index ?? 0;
+      const phrase = match[0].toLowerCase().replace(/\s+/g, " ");
+      // "at" is normally part of the clock expression, not a boundary cue.
+      if (phrase === "at" && index >= deadline.date.start && index <= deadline.time.end) return [];
+      const kind = /^(?:until|before|prior to|no later than|by)$/.test(phrase)
+        ? "before" as const
+        : /^(?:after|thereafter|or after|or later)$/.test(phrase)
+          ? "exclusive" as const
+          : /^(?:on or after|on or later|from|starting(?: at)?|beginning(?: at)?|begins?(?: at)?|starts?(?: at)?|takes effect(?: at)?|effective(?: from| as of)?|as of|on|at)$/.test(phrase)
+            ? "inclusive" as const
+            : "unknown" as const;
+      return [{ index, kind }];
+    }),
   ];
   const closest = linkTerms
     .map((term) => ({ ...term, distance: Math.abs(term.index - consequencePosition) }))
     .filter((term) => term.distance <= 100 && Math.abs(term.index - deadlineCenter) <= 100)
     .sort((left, right) => left.distance - right.distance)[0];
-  return closest?.kind === "after";
+  if (!closest || closest.kind === "before" || closest.kind === "unknown") return null;
+  return closest.kind;
 }
 
 const zoneTerms: Record<string, { zones: string[]; offsetMinutes: number }> = {
@@ -236,8 +247,14 @@ export function supportedRuleEvidenceIssue(rule: PolicyRule, propertyTimeZone: s
     return "The quoted text does not confirm this percentage as a penalty for the full booking amount.";
   }
   const consequencePosition = penaltyConsequencePosition(rule);
-  if (consequencePosition === null || !consequenceMatchesDeadline(rule, deadline, consequencePosition)) {
+  const quotedBoundary = consequencePosition === null
+    ? null
+    : consequenceMatchesDeadline(rule, deadline, consequencePosition);
+  if (!quotedBoundary) {
     return "The quoted text does not clearly tie this penalty to the deadline shown.";
+  }
+  if (rule.deadlineBoundary !== quotedBoundary) {
+    return "The quoted wording does not support whether this penalty applies at the exact deadline or only after it.";
   }
   if (!explicitZoneMatches(rule, propertyTimeZone)) {
     return "The quoted time zone or UTC offset does not match the property's time zone.";

@@ -49,7 +49,7 @@ Progress note: The learner asked to continue past the first two hands-on checkpo
 
 ## Final Review
 
-- [x] Final code review complete — identified issues fixed and verified; the learner authorized continuing through the repository push. Public video hosting and final Devpost submission remain pending.
+- [x] Final local code review complete — identified issues fixed and verified. The Limnim source updates remain unpublished; public video hosting and final Devpost submission remain pending.
 
 ## Code Tour and App Map
 
@@ -79,20 +79,20 @@ Checked against the [official rules](https://learn-ai-basics.devpost.com/rules),
 - [x] Working project with an end-to-end function; local setup and demo instructions are in `README.md`.
 - [x] Planning documents are committed under `devpost/`: `scope.md`, `prd.md`, and `spec.md`.
 - [x] Open-source `LICENSE` file is present (MIT).
-- [x] A public GitHub repository is accessible and contains the reviewed source, assets, instructions, and planning documents. Verified October 17, 2026: `https://github.com/zalkabsi/refundcurve` returns HTTP 200 and its `main` branch is publicly accessible.
+- [x] A public GitHub repository is accessible and contains the reviewed source, assets, instructions, and planning documents. Verified October 17, 2026: `https://github.com/zalkabsi/limnim` returns HTTP 200 and its `main` branch is publicly accessible.
 - [x] The MIT license is present in the public repository and GitHub's repository page exposes the `LICENSE` file. The public `main/LICENSE` URL returns HTTP 200.
 - [x] The public repository URL is in Devpost's **Try it out** field, per the entrant's confirmation; this field was not independently checked.
 
 ### Entry-card assets
 
-- [x] Project name: **RefundCurve**.
-- [x] Elevator pitch: **See how hotel cancellation deadlines could change what you get back.**
-- [x] A 3:2 PNG thumbnail under 5 MB is ready at `devpost/assets/refundcurve-thumbnail.png`.
+- [x] Project name: **Limnim**.
+- [x] Elevator pitch: **Turn hotel cancellation policies into evidence-backed guest answers.**
+- [x] A 3:2 PNG thumbnail under 5 MB is ready at `devpost/assets/limnim-thumbnail.png` (1536 × 1024, 181,414 bytes).
 
 ### Submission materials and form
 
 - [x] English project-description draft is ready at `devpost/submission-copy.md`; review the first-person learning paragraph so it matches the entrant's experience.
-- [ ] Record and review the **1 to under 3 minute** live-extraction demo with `npm run demo:live`, then upload it publicly to YouTube or Vimeo. The recording shows fictional booking details, live AI extraction, exact supporting quotes, the calculated timeline, and an ambiguous policy that stays unresolved. The public upload is still pending.
+- [ ] Record and review the **1 to under 3 minute** live-extraction demo with `npm run demo:live`, then upload it publicly to YouTube or Vimeo. The recording should show the fictional staff workflow, live AI extraction, a copyable evidence-linked reply, inclusive and strict-after thresholds, and an ambiguous policy that stays unresolved. The public upload is still pending.
 - [ ] Include the public video URL in the submission form.
 - [ ] Answer the required short-form question describing how the Devpost Learn Skill Pack was used.
 - [x] Entrant confirmed completion of the required age-of-majority checkbox.
@@ -110,3 +110,14 @@ This update records the current workspace review. Earlier checkboxes and learner
 - The no-credential Tokyo sample works end to end. A real OpenAI request returned HTTP 429 `credit_balance_exhausted`; a successful live extraction remains unverified.
 - Eligibility, registration, project provenance, ownership, team status where applicable, age-of-majority confirmation, the Skill Pack answer, and the current “Try it out” field require entrant review in Devpost.
 - The public demo video is still pending and remains the final project task. Do not record or upload it until the other blockers are resolved and a live run succeeds.
+
+## Limnim staff-response extension — October 20, 2026
+
+- [x] Rebrand the local app, package, written materials, future recording scripts, and repository remote as Limnim. The public repository rename is confirmed, but local source changes have not been pushed.
+- [x] Add a deterministic, copyable front-desk response using the selected time, local estimate, exact policy quote, and estimate disclaimer. The response is available for the fictional sample and calculable live results; it makes no AI request and sends no message.
+- [x] Preserve strict `after` semantics at the exact deadline and validate boundary wording against the quoted source.
+- [x] Refresh the README sample screenshot and 3:2 thumbnail from the local production build.
+- [x] Verify lint, type checking, 33 unit tests, 12 API integration tests, 9 Chromium flows against the dev server, 9 Chromium flows against the production build, and the production build. The final results are in `TEST_REPORT.md`.
+- [ ] Restore available OpenAI API credits and verify one live extraction. The previously checked account returned HTTP 429 `credit_balance_exhausted`.
+- [ ] Publish the updated local repository state and verify the submission form's current repository field.
+- [ ] Record and submit the public demo video as the last project task.

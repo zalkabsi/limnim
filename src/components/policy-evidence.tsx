@@ -24,7 +24,7 @@ export function PolicyEvidence({
             <blockquote>“{rule.evidenceQuote}”</blockquote>
             <p>{rule.interpretation}</p>
             {rule.status === "supported" ? (
-              <span className="evidence-status"><span aria-hidden="true">✓</span> Supported rule · {rule.penaltyPercent}% penalty</span>
+              <span className="evidence-status"><span aria-hidden="true">✓</span> Supported rule · {rule.penaltyPercent}% penalty applies {rule.deadlineBoundary === "exclusive" ? "after" : "on or after"} this deadline</span>
             ) : (
               <span className="evidence-status evidence-status-warning"><span aria-hidden="true">!</span> Needs clarification{rule.issue ? ` · ${rule.issue}` : ""}</span>
             )}

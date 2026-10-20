@@ -30,6 +30,19 @@ describe("policy threshold evaluation", () => {
     expect(result.activeRule?.id).toBe("penalty-50");
   });
 
+  it("keeps the previous penalty at an exclusive deadline and applies the new rate immediately after", () => {
+    const exclusiveRules = resolveRules({
+      rules: [{ ...tokyoAnalysis.rules[0], deadlineBoundary: "exclusive" }],
+      unresolvedIssues: [],
+    }, "Asia/Tokyo").rules;
+    const deadline = instant("2026-11-20T18:00");
+    const atDeadline = evaluatePolicy("1200", "USD", exclusiveRules, deadline);
+    const afterDeadline = evaluatePolicy("1200", "USD", exclusiveRules, deadline + 1);
+
+    expect([atDeadline.refund, atDeadline.penalty, atDeadline.nextRule?.id]).toEqual(["1200.00", "0.00", "penalty-50"]);
+    expect([afterDeadline.refund, afterDeadline.penalty, afterDeadline.activeRule?.id]).toEqual(["600.00", "600.00", "penalty-50"]);
+  });
+
   it("leaves every amount unresolved when penalty rates decrease over time", () => {
     const inconsistent = {
       rules: [

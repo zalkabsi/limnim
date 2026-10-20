@@ -4,17 +4,17 @@
 
 ## Project title
 
-RefundCurve
+Limnim
 
 ## Elevator pitch
 
-See how each hotel cancellation deadline changes your potential refund, with every estimate tied to the policy text.
+Turn hotel cancellation policies into evidence-backed guest answers.
 
 ## Short description
 
-RefundCurve turns a hotel's cancellation policy into a timeline of potential refunds and penalties. Paste the policy, enter the booking total, check-in details, and property's time zone, then explore supported cancellation deadlines and see how the estimate changes. Every supported rule links back to its policy excerpt.
+Limnim helps hotel front-desk teams answer cancellation questions without manually translating policy wording into amounts. Staff provide the policy and essential booking details; Limnim extracts explicit thresholds, checks each one against its exact source quote, and calculates the potential penalty and refund locally. A copyable reply includes the selected property-local time, amounts, relevant policy wording, and an estimate disclaimer.
 
-AI helps extract the terms; RefundCurve checks that each result matches its evidence and calculates amounts deterministically. If a deadline is unclear, rules conflict, or a fee is outside the prototype's supported terms, the result stays unresolved instead of guessing. It is for travelers who want a clearer picture before deciding whether to cancel now or wait. RefundCurve does not contact hotels, cancel bookings, guarantee refunds, or determine legal rights.
+The guest reply is built from validated rules and deterministic calculations, not another AI generation. Unclear boundaries, conflicts, and unsupported fees remain unresolved. Staff review and send the reply through their existing channel. Limnim does not connect to a PMS, message guests, sell or book services, cancel bookings, guarantee refunds, or determine legal rights. A later PMS integration could pair an answered question with a hotel-approved paid option such as late checkout after verifying its rules, availability, and price.
 
 ## What I learned — entrant review required
 
@@ -30,7 +30,8 @@ Confirm that this accurately describes which skills were run and how they inform
 
 ## Repository and try-it-out link
 
-- Repository URL: <https://github.com/zalkabsi/refundcurve>
+- Repository URL: <https://github.com/zalkabsi/limnim>
+- Local workspace changes are not yet published to the public repository.
 - “Try it out” field: use the same public repository URL as required by the published submission update.
 - Deployment URL: none. The verified rules do not require a public hosted website; the local run path is in [README.md](README.md).
 

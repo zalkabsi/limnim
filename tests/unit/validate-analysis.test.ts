@@ -6,6 +6,7 @@ function rule(overrides: Partial<PolicyRule> = {}): PolicyRule {
   return {
     id: "deadline-50",
     deadlineLocal: "2026-11-20T18:00",
+    deadlineBoundary: "inclusive",
     penaltyPercent: "50",
     evidenceQuote: "A 50% penalty applies from November 20, 2026 at 6:00 PM.",
     interpretation: "A 50% penalty begins at the deadline.",
@@ -17,6 +18,25 @@ function rule(overrides: Partial<PolicyRule> = {}): PolicyRule {
 describe("supported rule evidence", () => {
   it("accepts a matching full date, clock time, and penalty percentage", () => {
     expect(supportedRuleEvidenceIssue(rule(), "Asia/Tokyo")).toBeNull();
+  });
+
+  it("distinguishes inclusive wording from a strictly-after deadline", () => {
+    expect(supportedRuleEvidenceIssue(rule({
+      evidenceQuote: "A 50% penalty applies on or after November 20, 2026 at 6:00 PM.",
+      deadlineBoundary: "inclusive",
+    }), "Asia/Tokyo")).toBeNull();
+    expect(supportedRuleEvidenceIssue(rule({
+      evidenceQuote: "A 50% penalty applies after November 20, 2026 at 6:00 PM.",
+      deadlineBoundary: "exclusive",
+    }), "Asia/Tokyo")).toBeNull();
+    expect(supportedRuleEvidenceIssue(rule({
+      evidenceQuote: "A 50% penalty applies after November 20, 2026 at 6:00 PM.",
+      deadlineBoundary: "inclusive",
+    }), "Asia/Tokyo")).toMatch(/whether this penalty applies at the exact deadline/i);
+    expect(supportedRuleEvidenceIssue(rule({
+      evidenceQuote: "A 50% penalty applies on November 20, 2026 at 6:00 PM.",
+      deadlineBoundary: "unclear",
+    }), "Asia/Tokyo")).toMatch(/whether this penalty applies at the exact deadline/i);
   });
 
   it("accepts explicit 24-hour times and rejects bare ambiguous clock times", () => {

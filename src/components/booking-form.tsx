@@ -46,9 +46,9 @@ export function BookingForm({
       <div className="form-heading">
         <div>
           <p className="section-kicker">Analyze a policy</p>
-          <h2 id="live-form-title">See what each deadline could mean</h2>
+          <h2 id="live-form-title">Prepare a cancellation answer</h2>
         </div>
-        <span className="form-step">Policy + booking details</span>
+        <span className="form-step">Policy + reservation details</span>
       </div>
 
       <label className="form-field" htmlFor="policy-text">

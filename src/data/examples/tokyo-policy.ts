@@ -15,6 +15,7 @@ export const tokyoAnalysis: PolicyAnalysis = {
     {
       id: "penalty-50",
       deadlineLocal: "2026-11-20T18:00",
+      deadlineBoundary: "inclusive",
       penaltyPercent: "50",
       evidenceQuote:
         "Cancellations on or after November 20, 2026 at 6:00 PM JST incur a 50% penalty.",
@@ -24,6 +25,7 @@ export const tokyoAnalysis: PolicyAnalysis = {
     {
       id: "penalty-100",
       deadlineLocal: "2026-11-24T15:00",
+      deadlineBoundary: "inclusive",
       penaltyPercent: "100",
       evidenceQuote:
         "Cancellations on or after November 24, 2026 at 3:00 PM JST are non-refundable.",
