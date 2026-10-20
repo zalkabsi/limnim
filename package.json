@@ -1,5 +1,6 @@
 {
   "name": "limnim",
+  "description": "Limnim helps hotel teams explain cancellation policies with evidence-backed refund estimates and reviewable guest replies.",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -12,6 +13,7 @@
     "test:unit": "vitest run tests/unit",
     "test:integration": "vitest run tests/integration",
     "test:e2e": "playwright test",
+    "demo:sample": "node devpost/record-demo.mjs",
     "demo:live": "node devpost/record-live-demo.mjs"
   },
   "dependencies": {

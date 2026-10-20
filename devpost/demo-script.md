@@ -1,5 +1,21 @@
 # Limnim Live Demo
 
+## Narrated sample-mode preview
+
+`record-demo.mjs` writes the captioned, fictional sample recording and matching narration cues. To add the synthetic voiceover to an existing or newly recorded sample clip:
+
+```sh
+python3 -m pip install --upgrade --target /tmp/limnim-demo-python -r devpost/requirements-demo.txt
+NODE_USE_ENV_PROXY=1 npm run dev
+# In a second terminal:
+npm run demo:sample
+# Then render the narration:
+PYTHONPATH=/tmp/limnim-demo-python python3 devpost/render-narrated-demo.py \
+  devpost/assets/limnim-demo.mp4 devpost/assets/limnim-demo-cues.json --sample
+```
+
+This preview does not perform live AI extraction and is not the final hackathon demo. The narration explicitly describes the sample data and its limitations.
+
 The recording uses two fictional policies and booking details. The first request demonstrates live AI extraction for a Tokyo booking; the second shows that a discretionary, relative deadline remains unresolved. The script checks the API request contains only the policy text and property time zone, verifies verbatim evidence and the calculated timeline, and checks that no estimate appears for the ambiguous policy.
 
 ## Record the final demo

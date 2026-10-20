@@ -1,5 +1,5 @@
 import { chromium } from "playwright";
-import { existsSync, mkdirSync } from "node:fs";
+import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { spawnSync } from "node:child_process";
@@ -7,8 +7,10 @@ import assert from "node:assert/strict";
 
 const baseURL = process.env.LIMNIM_DEMO_URL ?? "http://127.0.0.1:3000";
 const outputPath = join(process.cwd(), "devpost", "assets", "limnim-demo.mp4");
+const cuePath = join(process.cwd(), "devpost", "assets", "limnim-demo-cues.json");
 const videoDir = join(tmpdir(), `limnim-video-${process.pid}`);
 mkdirSync(videoDir, { recursive: true });
+const narrationCues = [];
 
 const chromiumPath = process.env.PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH
   ?? (existsSync("/usr/bin/chromium") ? "/usr/bin/chromium" : undefined);
@@ -46,7 +48,7 @@ try {
     }
   ` });
 
-  const caption = async (text) => {
+  const caption = async (id, text) => {
     await page.evaluate((label) => {
       let element = document.getElementById("limnim-demo-caption");
       if (!element) {
@@ -56,6 +58,7 @@ try {
       }
       element.textContent = label;
     }, text);
+    narrationCues.push({ id, startSeconds: (performance.now() - recordingStartedAt) / 1000 });
   };
 
   const waitUntil = async (seconds) => {
@@ -63,8 +66,9 @@ try {
     if (remaining > 0) await page.waitForTimeout(remaining);
   };
 
-  await caption("Limnim helps hotel staff answer cancellation questions with a clear estimate and the exact policy wording.");
+  await caption("opening", "Limnim helps hotel staff answer cancellation questions with a clear estimate and the exact policy wording.");
   await waitUntil(9);
+  await caption("sample-booking", "This fictional Tokyo sample booking totals $1,200 and has two cancellation deadlines.");
   await page.getByRole("button", { name: /Try sample booking/i }).click();
   const sampleHeading = page.getByRole("heading", { name: "Tokyo sample booking" });
   await sampleHeading.waitFor();
@@ -73,16 +77,16 @@ try {
     element.scrollIntoView({ block: "start", behavior: "instant" });
   });
   await expectAmounts("$1,200.00", "$0.00");
+  await waitUntil(12);
   await page.locator(".guest-response-card").evaluate((element) => {
     element.scrollIntoView({ block: "start", behavior: "instant" });
   });
-  await caption("This ready-to-review reply includes the selected time, estimate, policy quote, and a clear caveat.");
-  await waitUntil(15);
+  await caption("guest-reply", "A prepared reply shows the selected time, calculated amounts, policy quote, and review caveat.");
+  await waitUntil(17);
   await page.locator(".timeline-card").evaluate((element) => {
     element.scrollIntoView({ block: "start", behavior: "instant" });
   });
-  await waitUntil(10);
-  await caption("This fictional Tokyo sample starts at $1,200, with no cancellation penalty before the first deadline.");
+  await caption("before-first", "Before the cutoff, the full amount is refundable.");
 
   const slider = page.getByRole("slider", { name: "Cancellation time" });
   const setTime = async (localTime) => {
@@ -100,12 +104,12 @@ try {
   await setTime("2026-11-20T18:00");
   await expectAmounts("$600.00", "$600.00");
   await waitUntil(21);
-  await caption("The Tokyo sample uses inclusive thresholds, so its penalty applies at each exact deadline.");
+  await caption("first-deadline", "At the first listed deadline, the inclusive rule produces a $600 refund and $600 penalty.");
   await waitUntil(37.5);
   await setTime("2026-11-24T15:00");
   await expectAmounts("$0.00", "$1,200.00");
   await waitUntil(38);
-  await caption("At the final deadline, this sample booking becomes non-refundable.");
+  await caption("last-deadline", "At the final threshold, the sample shows no estimated refund and a $1,200 penalty.");
 
   await waitUntil(54.5);
   const evidence = page.locator(".evidence-item blockquote").first();
@@ -113,14 +117,14 @@ try {
     element.scrollIntoView({ block: "center", behavior: "instant" });
   });
   await waitUntil(55);
-  await caption("Each step is tied to the policy text, so you can check what the estimate is based on.");
+  await caption("evidence", "Each timeline result links to the exact policy wording for staff to review.");
 
   await waitUntil(66.5);
   await page.locator(".summary-grid").evaluate((element) => {
     element.scrollIntoView({ block: "start", behavior: "instant" });
   });
   await waitUntil(67);
-  await caption("Staff review and send replies through their existing channel. Limnim doesn't message guests or promise a refund.");
+  await caption("closing", "Staff review and send the draft through their existing channel. The data is fictional, and the estimate does not confirm a hotel refund.");
   await waitUntil(78.4);
 } finally {
   const video = page.video();
@@ -132,7 +136,9 @@ try {
     "-pix_fmt", "yuv420p", "-movflags", "+faststart", outputPath,
   ], { stdio: "inherit" });
   if (encoded.status !== 0) throw new Error("ffmpeg could not create the MP4 demo recording.");
+  writeFileSync(cuePath, `${JSON.stringify(narrationCues, null, 2)}\n`, "utf8");
   console.log(`Saved ${outputPath}`);
+  console.log(`Saved narration cues ${cuePath}`);
 }
 
 async function expectAmounts(refund, penalty) {

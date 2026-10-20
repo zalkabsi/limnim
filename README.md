@@ -1,5 +1,7 @@
 # Limnim
 
+> Evidence-backed cancellation estimates and reviewable guest replies for hotel teams.
+
 Limnim helps hotel teams answer cancellation questions with a clear estimate, the exact policy wording behind it, and a guest reply they can review and copy. AI extracts explicit cancellation thresholds; the app checks them against the submitted text and calculates amounts locally. The estimate is not a confirmed hotel refund or a legal interpretation.
 
 ![Limnim Tokyo sample workspace](devpost/assets/limnim-sample-workspace.png)
@@ -64,6 +66,8 @@ The integration tests mock OpenAI and do not need an API key. Playwright uses Ch
 3. Submit a relative or incomplete deadline and confirm that Limnim explains the missing detail without showing a guessed amount or response.
 
 For the final narrated recording, install `devpost/requirements-demo.txt` into a temporary target with `python3 -m pip install --upgrade --target /tmp/limnim-demo-python -r devpost/requirements-demo.txt`. The recorder uses Playwright's ffmpeg helper when installed and falls back to `/usr/bin/ffmpeg` on Linux; elsewhere, install it with `npx playwright install ffmpeg`. Start the app with `NODE_USE_ENV_PROXY=1 npm run dev`, then run `PYTHONPATH=/tmp/limnim-demo-python npm run demo:live` in another terminal. This performs two live analyses using fictional details and checks both the supported timeline and unresolved ambiguous case before replacing `devpost/assets/limnim-demo-narrated.mp4`. Run this only as the final project task, after a funded OpenAI API account and all other checks are ready. The recording uses synthetic narration; review it before uploading. Keep the app local and avoid showing `.env.local`, API keys, or personal booking information. See [DEMO_VIDEO_PLAN.md](DEMO_VIDEO_PLAN.md).
+
+To record the fictional sample workflow without an API request, run `NODE_USE_ENV_PROXY=1 npm run dev` and then `npm run demo:sample` in a second terminal. Add its sample-specific synthetic narration with the steps in [devpost/demo-script.md](devpost/demo-script.md).
 
 ## License
 
