@@ -101,3 +101,12 @@ Checked against the [official rules](https://learn-ai-basics.devpost.com/rules),
 - [ ] Submit all required Devpost fields before the deadline. Keep the repo/video available without charge or access restrictions through judging.
 
 The rules require a public repository and demo video; they do not list deployment of a public website as a submission requirement. Submission eligibility and the required personal attestations must be completed by the entrant.
+
+## Independent audit update — October 20, 2026
+
+This update records the current workspace review. Earlier checkboxes and learner confirmations above are historical attestations; they do not independently verify the current Devpost account or submission form.
+
+- The final local verification results are recorded in `TEST_REPORT.md`: lint, typecheck, unit, API integration, production build, and all nine production-browser tests pass.
+- The no-credential Tokyo sample works end to end. A real OpenAI request returned HTTP 429 `credit_balance_exhausted`; a successful live extraction remains unverified.
+- Eligibility, registration, project provenance, ownership, team status where applicable, age-of-majority confirmation, the Skill Pack answer, and the current “Try it out” field require entrant review in Devpost.
+- The public demo video is still pending and remains the final project task. Do not record or upload it until the other blockers are resolved and a live run succeeds.

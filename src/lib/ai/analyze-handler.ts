@@ -1,5 +1,5 @@
 import { Info } from "luxon";
-import { AnalyzeRequestSchema, PolicyAnalysisSchema } from "@/lib/ai/schema";
+import { AnalyzeRequestSchema, PolicyAnalysisSchema, ProviderPolicyAnalysisSchema } from "@/lib/ai/schema";
 import { supportedRuleEvidenceIssue } from "@/lib/ai/validate-analysis";
 import type { PolicyRule } from "@/types/policy";
 
@@ -23,6 +23,38 @@ type JsonBodyResult =
 
 function errorResponse(status: number, code: string, message: string) {
   return Response.json({ error: { code, message } }, { status });
+}
+
+function providerErrorResponse(error: unknown) {
+  if (typeof error === "object" && error !== null) {
+    const providerError = error as { status?: unknown; code?: unknown };
+    const status = typeof providerError.status === "number" ? providerError.status : null;
+    const code = typeof providerError.code === "string" ? providerError.code : null;
+
+    if (status === 429 && (code === "credit_balance_exhausted" || code === "insufficient_quota")) {
+      return errorResponse(
+        503,
+        "provider_quota_exhausted",
+        "Live analysis is unavailable because the configured OpenAI account has no available API credits. Add credits or use an account with available usage; the sample still works without live analysis.",
+      );
+    }
+    if (status === 429) {
+      return errorResponse(
+        503,
+        "provider_rate_limited",
+        "The AI service is rate-limiting requests. Wait a moment and try again, or use the sample booking.",
+      );
+    }
+    if (status === 401 || status === 403) {
+      return errorResponse(
+        503,
+        "provider_access_denied",
+        "Live analysis could not access the configured OpenAI account. Check OPENAI_API_KEY and the account's API access; the sample still works without it.",
+      );
+    }
+  }
+
+  return errorResponse(502, "analysis_failed", "We couldn't analyze this policy. Check your connection and try again.");
 }
 
 async function readJsonBody(request: Request): Promise<JsonBodyResult> {
@@ -111,7 +143,7 @@ export function createAnalyzeHandler({ getApiKey, extract }: AnalyzeDependencies
         signal: request.signal,
       });
       const parsedOutput: unknown = JSON.parse(outputText);
-      const parsedAnalysis = PolicyAnalysisSchema.safeParse(parsedOutput);
+      const parsedAnalysis = ProviderPolicyAnalysisSchema.safeParse(parsedOutput);
       if (!parsedAnalysis.success) {
         return errorResponse(502, "invalid_provider_output", "The policy analysis could not be verified. Please try again.");
       }
@@ -145,8 +177,8 @@ export function createAnalyzeHandler({ getApiKey, extract }: AnalyzeDependencies
         unresolvedIssues: [...new Set(unresolvedIssues)],
       });
       return Response.json({ analysis });
-    } catch {
-      return errorResponse(502, "analysis_failed", "We couldn't analyze this policy. Check your connection and try again.");
+    } catch (error) {
+      return providerErrorResponse(error);
     }
   };
 }

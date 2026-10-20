@@ -117,6 +117,22 @@ describe("POST /api/analyze", () => {
     expect(responseText).toContain("analysis_failed");
   });
 
+  it("gives actionable guidance when the provider account has exhausted its credits", async () => {
+    const providerError = Object.assign(new Error("credit_balance_exhausted"), {
+      status: 429,
+      code: "credit_balance_exhausted",
+    });
+    const handler = createAnalyzeHandler({ getApiKey: () => "test-key", extract: async () => { throw providerError; } });
+    const response = await handler(request({ policyText, propertyTimeZone: "Asia/Tokyo" }));
+    const responseText = await response.text();
+
+    expect(response.status).toBe(503);
+    expect(responseText).toContain("provider_quota_exhausted");
+    expect(responseText).toContain("no available API credits");
+    expect(responseText).not.toContain("credit_balance_exhausted");
+    expect(responseText).not.toContain(policyText);
+  });
+
   it("rejects booking amounts in the analysis request", async () => {
     const extract = vi.fn(async () => JSON.stringify(supportedOutput));
     const handler = createAnalyzeHandler({ getApiKey: () => "test-key", extract });
@@ -149,5 +165,29 @@ describe("POST /api/analyze", () => {
 
     expect(response.status).toBe(413);
     expect(extract).not.toHaveBeenCalled();
+  });
+
+  it("keeps provider and per-rule clarification issues within the combined response limit", async () => {
+    const providerIssues = Array.from({ length: 40 }, (_, index) => `Policy issue ${index + 1} needs review.`);
+    const clarificationRules = Array.from({ length: 20 }, (_, index) => ({
+      id: `unclear-rule-${index + 1}`,
+      deadlineLocal: "",
+      penaltyPercent: "",
+      evidenceQuote: policyText,
+      interpretation: "This cancellation term needs review.",
+      status: "needs_clarification",
+      issue: `Cancellation condition ${index + 1} needs clarification.`,
+    }));
+    const handler = createAnalyzeHandler({
+      getApiKey: () => "test-key",
+      extract: async () => JSON.stringify({ rules: clarificationRules, unresolvedIssues: providerIssues }),
+    });
+
+    const response = await handler(request({ policyText, propertyTimeZone: "Asia/Tokyo" }));
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.analysis.unresolvedIssues).toHaveLength(60);
+    expect(body.analysis.rules).toHaveLength(20);
   });
 });

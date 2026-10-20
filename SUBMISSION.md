@@ -1,0 +1,50 @@
+# Devpost Submission Draft
+
+**State:** Content prepared for review. It has not been entered or submitted in Devpost. Review the first-person answers and account-specific fields before using them.
+
+## Project title
+
+RefundCurve
+
+## Elevator pitch
+
+See how each hotel cancellation deadline changes your potential refund, with every estimate tied to the policy text.
+
+## Short description
+
+RefundCurve turns a hotel's cancellation policy into a timeline of potential refunds and penalties. Paste the policy, enter the booking total, check-in details, and property's time zone, then explore supported cancellation deadlines and see how the estimate changes. Every supported rule links back to its policy excerpt.
+
+AI helps extract the terms; RefundCurve checks that each result matches its evidence and calculates amounts deterministically. If a deadline is unclear, rules conflict, or a fee is outside the prototype's supported terms, the result stays unresolved instead of guessing. It is for travelers who want a clearer picture before deciding whether to cancel now or wait. RefundCurve does not contact hotels, cancel bookings, guarantee refunds, or determine legal rights.
+
+## What I learned — entrant review required
+
+Draft: “The biggest lesson for me was that an extracted quote isn't enough on its own. I checked that the date, time, penalty, and booking scope match the evidence, then kept the financial math separate from the AI. When a policy doesn't say enough, showing the uncertainty is more useful than filling in the gaps.”
+
+Use only if it reflects the entrant's actual experience.
+
+## How I used the Devpost Learn Skill Pack — entrant review required
+
+Draft: “I used the Devpost Learn Skill Pack to turn the idea into an approved scope, PRD, and technical spec before implementation. Those plans kept the prototype focused on one end-to-end hotel workflow, and I checked the finished behavior against the planned requirements and edge cases.”
+
+Confirm that this accurately describes which skills were run and how they informed the project.
+
+## Repository and try-it-out link
+
+- Repository URL: <https://github.com/zalkabsi/refundcurve>
+- “Try it out” field: use the same public repository URL as required by the published submission update.
+- Deployment URL: none. The verified rules do not require a public hosted website; the local run path is in [README.md](README.md).
+
+## Video field
+
+**Pending final task.** Do not use an existing local sample-only recording as the final entry. Record and publicly upload a reviewed, functioning demo to YouTube or Vimeo, then enter its URL. See [DEMO_VIDEO_PLAN.md](DEMO_VIDEO_PLAN.md).
+
+## Required account checks
+
+- Verify eligibility and registration.
+- Confirm the project is original and any pre-existing work is disclosed.
+- Complete the age-of-majority checkbox.
+- Review and save the Skill Pack answer above.
+- Confirm the repository URL is in “Try it out.”
+- Complete all other required Devpost fields and submit before October 26, 2026 at 5:00 PM EDT (October 27 at 12:00 AM Asia/Riyadh).
+
+Do not claim live AI extraction works until a request has completed successfully with an authorized OpenAI account that has available credits. During this audit, the real API returned HTTP 429 `credit_balance_exhausted`.

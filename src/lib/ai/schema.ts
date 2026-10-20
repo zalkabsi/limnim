@@ -1,6 +1,9 @@
 import { z } from "zod";
 
 const localDateTimePattern = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/;
+const MAX_POLICY_RULES = 20;
+const MAX_PROVIDER_UNRESOLVED_ISSUES = 40;
+const MAX_COMBINED_UNRESOLVED_ISSUES = MAX_PROVIDER_UNRESOLVED_ISSUES + MAX_POLICY_RULES;
 
 export const PolicyRuleSchema = z.object({
   id: z.string().min(1).max(60),
@@ -30,17 +33,26 @@ export const PolicyRuleSchema = z.object({
   }
 });
 
-export const PolicyAnalysisSchema = z.object({
-  rules: z.array(PolicyRuleSchema).max(20).superRefine((rules, context) => {
-    const seenIds = new Set<string>();
-    rules.forEach((rule, index) => {
-      if (seenIds.has(rule.id)) {
-        context.addIssue({ code: "custom", path: [index, "id"], message: "Rule identifiers must be unique." });
-      }
-      seenIds.add(rule.id);
-    });
-  }),
-  unresolvedIssues: z.array(z.string().min(1).max(500)).max(40),
+const PolicyRulesSchema = z.array(PolicyRuleSchema).max(MAX_POLICY_RULES).superRefine((rules, context) => {
+  const seenIds = new Set<string>();
+  rules.forEach((rule, index) => {
+    if (seenIds.has(rule.id)) {
+      context.addIssue({ code: "custom", path: [index, "id"], message: "Rule identifiers must be unique." });
+    }
+    seenIds.add(rule.id);
+  });
+});
+const PolicyIssueSchema = z.string().min(1).max(500);
+
+export const ProviderPolicyAnalysisSchema = z.object({
+  rules: PolicyRulesSchema,
+  unresolvedIssues: z.array(PolicyIssueSchema).max(MAX_PROVIDER_UNRESOLVED_ISSUES),
+}).strict();
+
+// The API may add one clarification issue per rule after validating the
+// provider's response, so its response limit includes both issue sources.
+export const PolicyAnalysisSchema = ProviderPolicyAnalysisSchema.extend({
+  unresolvedIssues: z.array(PolicyIssueSchema).max(MAX_COMBINED_UNRESOLVED_ISSUES),
 }).strict();
 
 export const AnalyzeRequestSchema = z.object({
@@ -73,8 +85,12 @@ export const cancellationAnalysisJsonSchema = {
           issue: { type: "string", maxLength: 500, description: "Short reason the rule needs clarification, or empty for a supported rule." },
         },
       },
-      maxItems: 20,
+      maxItems: MAX_POLICY_RULES,
     },
-    unresolvedIssues: { type: "array", items: { type: "string", minLength: 1, maxLength: 500 }, maxItems: 40 },
+    unresolvedIssues: {
+      type: "array",
+      items: { type: "string", minLength: 1, maxLength: 500 },
+      maxItems: MAX_PROVIDER_UNRESOLVED_ISSUES,
+    },
   },
 } as const;

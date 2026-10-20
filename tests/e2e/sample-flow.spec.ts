@@ -94,6 +94,32 @@ test("live policy analysis uses verified rules while keeping the booking total i
   await expect(page.getByTestId("penalty-amount")).toHaveText("$600.00");
 });
 
+test("an exhausted AI account gets clear guidance and leaves the sample available", async ({ page }) => {
+  await page.route("**/api/analyze", async (route) => {
+    await route.fulfill({
+      status: 503,
+      contentType: "application/json",
+      body: JSON.stringify({
+        error: {
+          code: "provider_quota_exhausted",
+          message: "Live analysis is unavailable because the configured OpenAI account has no available API credits. Add credits or use an account with available usage; the sample still works without live analysis.",
+        },
+      }),
+    });
+  });
+
+  await page.goto("/");
+  await page.locator("#policy-text").fill("A sample cancellation policy.");
+  await page.locator("#booking-amount").fill("1200");
+  await page.locator("#property-zone").fill("Asia/Tokyo");
+  await page.getByRole("button", { name: "Analyze policy" }).click();
+
+  await expect(page.locator(".live-form").getByRole("alert")).toContainText("no available API credits");
+  await page.getByRole("button", { name: /Try sample booking/i }).click();
+  await expect(page.getByRole("heading", { name: "Tokyo sample booking" })).toBeVisible();
+  await expect(page.getByTestId("refund-amount")).toHaveText("$1,200.00");
+});
+
 test("a clarification-needed policy shows no guessed refund amount", async ({ page }) => {
   const policyText = "Cancellations made less than 48 hours before arrival are subject to the hotel's discretion.";
   const issue = "The deadline is relative to check-in, which is not stated as an exact date and time.";
