@@ -1,6 +1,6 @@
 # Demo Video Plan
 
-**State:** A captioned sample-mode draft was recorded from the production build at `devpost/assets/limnim-demo.mp4` (78.4 seconds). It demonstrates the fictional sample, evidence, timeline, and guest reply, but not live extraction. A final public submission video remains pending because the configured OpenAI account has no available credits.
+**State:** A captioned sample-mode draft was recorded from the production build at `devpost/assets/limnim-demo.mp4` (78.4 seconds); it remains local and is not part of the public repository. It demonstrates the fictional sample, evidence, timeline, and guest reply, but not live extraction. A final public submission video remains pending because the configured OpenAI account has no available credits.
 
 ## Official constraints
 

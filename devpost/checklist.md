@@ -109,7 +109,7 @@ This update records the current workspace review. Earlier checkboxes and learner
 - The final verification results are recorded in `TEST_REPORT.md`: clean install, lint, typecheck, unit, API integration, production build, and nine browser tests against both dev and production pass. Public `main` includes the tested source in commit `8652ff3`.
 - The no-credential Tokyo sample works end to end. The latest live request returned `provider_quota_exhausted` from the provider's HTTP 429; a successful live extraction remains unverified.
 - Eligibility, registration, project provenance, ownership, team status where applicable, age-of-majority confirmation, the Skill Pack answer, and the current “Try it out” field require entrant review in Devpost.
-- A captioned 78-second sample-mode draft is available at `devpost/assets/limnim-demo.mp4`; it does not show live extraction. The public final video remains pending until a funded live run succeeds.
+- A captioned 78-second sample-mode draft is local-only at `devpost/assets/limnim-demo.mp4`; it is not in the public repo and does not show live extraction. The public final video remains pending until a funded live run succeeds.
 
 ## Limnim staff-response extension — October 20, 2026
 

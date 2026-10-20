@@ -37,7 +37,7 @@ Confirm that this accurately describes which skills were run and how they inform
 
 ## Video field
 
-**Pending final task.** A 78-second captioned sample-mode draft is available at `devpost/assets/limnim-demo.mp4`; it does not demonstrate live extraction. After a funded live run succeeds, record and publicly upload the reviewed final demo to YouTube or Vimeo, then enter its URL. See [DEMO_VIDEO_PLAN.md](DEMO_VIDEO_PLAN.md).
+**Pending final task.** A 78-second captioned sample-mode draft is local-only at `devpost/assets/limnim-demo.mp4`; it is not in the public repo and does not demonstrate live extraction. After a funded live run succeeds, record and publicly upload the reviewed final demo to YouTube or Vimeo, then enter its URL. See [DEMO_VIDEO_PLAN.md](DEMO_VIDEO_PLAN.md).
 
 ## Required account checks
 

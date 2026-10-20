@@ -30,7 +30,7 @@ The API tests use a mock provider and do not prove account access. The demo reco
 
 ## Visual evidence
 
-The README screenshot at `devpost/assets/limnim-sample-workspace.png` was captured from the production build after loading the fictional Tokyo sample. It shows the refund summary, stepped timeline, exact cancellation deadlines, source excerpts, and prepared staff reply. The 3:2 Devpost thumbnail is `devpost/assets/limnim-thumbnail.png` (1536 × 1024, 181,414 bytes). A 78.4-second captioned sample-mode draft is at `devpost/assets/limnim-demo.mp4` (842,177 bytes); it is not a live-extraction demo or public submission video.
+The README screenshot at `devpost/assets/limnim-sample-workspace.png` was captured from the production build after loading the fictional Tokyo sample. It shows the refund summary, stepped timeline, exact cancellation deadlines, source excerpts, and prepared staff reply. The 3:2 Devpost thumbnail is `devpost/assets/limnim-thumbnail.png` (1536 × 1024, 181,414 bytes). A 78.4-second captioned sample-mode draft is local-only at `devpost/assets/limnim-demo.mp4` (842,177 bytes); it is not in the public repository, does not demonstrate live extraction, and is not a public submission video.
 
 ## Publication state
 
