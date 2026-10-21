@@ -38,4 +38,4 @@ Use [`assets/limnim-thumbnail.png`](assets/limnim-thumbnail.png), a 1536 × 1024
 
 ## Demo video
 
-The local-only 78-second sample-mode draft is [`assets/limnim-demo-narrated.mp4`](assets/limnim-demo-narrated.mp4); it uses synthetic narration, fictional data, and no live AI extraction. Its silent source video is [`assets/limnim-demo.mp4`](assets/limnim-demo.mp4). Neither local draft is included in the public repository. Record the final live-extraction demo with `npm run demo:live` after the API account has available credits. Existing committed recordings predate the Limnim rebrand and must not be used as the final demo.
+The local-only narrated sample-mode preview is generated at `devpost/assets/limnim-demo-narrated.mp4`; it uses synthetic narration, fictional data, and no live AI extraction. Its silent source is `devpost/assets/limnim-demo.mp4`. Both files are ignored by Git and must be reviewed before any submission. The older RefundCurve recordings have been removed because they show prior branding. A live-extraction video requires an account with available API credits and can be recorded separately with `npm run demo:live`.

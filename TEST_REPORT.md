@@ -1,37 +1,41 @@
-# Test Report
+# Pre-submission Audit Report
 
-**Run date:** October 20, 2026 · **Project:** Limnim · **Runtime:** Node.js v24.19.0, npm 11.9.0, Next.js 16.4.1
+**Audit date:** October 20, 2026 · **Runtime:** Node.js 24.19.0, npm 11.9.0, Next.js 16.4.1
 
-## Results
+## Checks
 
 | Check | Result | Evidence |
 |---|---|---|
-| Locked dependency install | Passed | `npm ci --cache /tmp/limnim-npm-cache --prefer-online --loglevel=error` installed 416 packages from the lockfile in an isolated validation copy. |
+| Locked dependency install | Passed: 416 packages | `npm ci --cache /tmp/limnim-npm-cache --no-audit` |
 | Lint | Passed | `npm run lint` |
 | Type check | Passed | `npm run typecheck` |
 | Unit tests | Passed: 33 tests in 6 files | `npm run test:unit` |
 | API integration tests | Passed: 12 tests | `npm run test:integration` |
-| Production build | Passed | `npm run build` compiled the app and generated the static home page and dynamic `/api/analyze` route. |
-| Browser end-to-end tests, dev server | Passed: 9 tests | Playwright Chromium ran against the dev server on port 3002. |
-| Browser end-to-end tests, production build | Passed: 9 tests | After a clean lockfile install and production build, Playwright Chromium ran against the production server on port 3004. |
-| Production dependency audit | Passed: 0 vulnerabilities | `npm audit --omit=dev` |
-| Full dependency audit | Unresolved upstream advisory | `npm audit` reports 5 high-severity affected packages through the development-only Next ESLint dependency chain. The advisory is GHSA-vfj7-8cjw-p6xm for `braces`; npm reports no available fix. |
-| Diff whitespace check | Passed | `git diff --check` |
+| Standard browser suite | Passed: 9; 1 sample-only test skipped by its mode guard | `env -u OPENAI_API_KEY npm run test:e2e` |
+| Sample-only browser flow, dev | Passed: 1 | `env -u OPENAI_API_KEY NEXT_PUBLIC_SAMPLE_DEMO=true npm run test:e2e -- tests/e2e/sample-demo.spec.ts` |
+| Production build | Passed | `env -u OPENAI_API_KEY NEXT_PUBLIC_SAMPLE_DEMO=true npm run build` |
+| Sample-only browser flow, production build | Passed: 1 | Started the built app without `OPENAI_API_KEY`; Playwright confirmed the demo notice, Tokyo sample, responsive layout, threshold changes, and API rejection. |
+| Whitespace and local Markdown links | Passed | `git diff --check`; local link scan found 0 broken targets. |
+| Secret and debug scan | Passed | Secret-pattern scan found 0 hits; the app/config has no Render API key binding or app `console.*` calls. No secret values were printed. |
 
-The default Playwright port, 3000, was occupied by a pre-existing dev server that accepted connections but did not return a response. I left that process untouched and ran the browser checks on ports 3002 and 3004 using the configurable `PLAYWRIGHT_TEST_PORT` setting. The final application source and tests were validated from an isolated copy so dependency installation and browser/build artifacts did not disturb the existing workspace server.
+The sample-mode browser check ran at 390×844 and confirmed there is no horizontal overflow. It verified the $600/$600 first threshold, the $0/$1,200 final threshold, and that normal sample exploration sends no analysis request.
 
-The browser suite verifies the no-credential Tokyo sample, evidence display, unsupported policy handling, narrow layout, keyboard input, cancellation, quota recovery, the copyable front-desk response, and inclusive versus strict-after deadline behavior at and just beyond the threshold. The guest-response builder remains deterministic and client-side; it does not send messages or make another AI request.
+## Render demo
 
-## Live provider check
+The live page at <https://limnim-sample-demo.onrender.com> returned HTTP 200 and included the “Interactive sample demo” notice and Tokyo sample. A POST to `/api/analyze` returned HTTP 503 with code `sample_demo_only` and the expected user-facing message. The live check succeeded through the configured workspace proxy. The Render service config sets `NEXT_PUBLIC_SAMPLE_DEMO=true` and contains no OpenAI key requirement.
 
-The latest real request through the app used the repository's prompt, JSON schema, model, and SDK with synthetic policy text. It returned `provider_quota_exhausted`, which maps the provider's HTTP 429 `credit_balance_exhausted` response to a safe user-facing message. Integration and browser tests verify that response. A successful live extraction has **not** been verified; do not describe it as working in submission materials until an authorized account with available credits completes a live check.
+The same checks passed against the local production build with `OPENAI_API_KEY` removed. The app does not call OpenAI for the Tokyo example. No Render settings, credentials, deployment, commit, or push were changed during this audit.
 
-The API tests use a mock provider and do not prove account access. The demo recorder was not run because live extraction is unavailable and video production remains the final project task. No public deployment was attempted; the official challenge does not require one.
+## Screenshot and video
 
-## Visual evidence
+The README screenshot at `devpost/assets/limnim-sample-workspace.png` was recaptured from the sample-only production build. It shows the sample notice, fictional booking, refund/penalty summary, guest reply, timeline, and policy evidence.
 
-The README screenshot at `devpost/assets/limnim-sample-workspace.png` was captured from the production build after loading the fictional Tokyo sample. It shows the refund summary, stepped timeline, exact cancellation deadlines, source excerpts, and prepared staff reply. The 3:2 Devpost thumbnail is `devpost/assets/limnim-thumbnail.png` (1536 × 1024, 181,414 bytes). A 78.4-second captioned sample-mode draft is local-only at `devpost/assets/limnim-demo.mp4` (842,177 bytes); it is not in the public repository, does not demonstrate live extraction, and is not a public submission video.
+The requested prior-workspace video was not present. A new local-only sample preview was generated at `devpost/assets/limnim-demo-narrated.mp4`; it is ignored by Git and was not uploaded or published. It is 78.5 seconds, 1440×900 at 10 fps, with H.264 video and AAC narration. `ffmpeg` decoded the full file without errors, and sampled frames match Limnim’s current sample-only UI and branding. Its silent source and cue file are also ignored by Git.
 
-## Publication state
+The Playwright ffmpeg helper download returned HTTP 403 `Domain forbidden` through the workspace proxy. The sample recorder now captures Chromium frames and encodes them with system `ffmpeg`, so it does not need that download. The separate live recorder was not run; it still requires the helper and an authorized OpenAI account with available credits.
 
-The local origin points to `https://github.com/zalkabsi/limnim.git`. The tested Limnim source and refreshed images were published in commit [`8652ff3`](https://github.com/zalkabsi/limnim/commit/8652ff301f05d542e757e72f4e8d1c877360df2c); `main` was verified at that commit before this report-only follow-up. The local sample-mode draft has not been uploaded publicly. A final live-extraction video and Devpost submission remain pending.
+## Remaining status
+
+The last recorded live OpenAI request in prior project notes returned HTTP 429 `credit_balance_exhausted`. This audit did not retry live analysis; a successful live extraction remains unverified.
+
+The checked-out `origin/main` baseline is commit `20624c8`. Audit fixes, including removal of the old RefundCurve MP4s and the refreshed screenshot, are local and uncommitted. Because this audit did not push, the public repository still needs those local changes published before it reflects the reviewed tree. The local sample video remains unuploaded as requested. Entrant-controlled Devpost fields and video publication are still outstanding.

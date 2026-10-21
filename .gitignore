@@ -14,3 +14,8 @@ blob-report/
 
 # Personal learning context stays out of commits by default.
 /devpost/learner-profile.md
+
+# Demo recordings are generated locally and reviewed before any submission.
+/devpost/assets/limnim-demo.mp4
+/devpost/assets/limnim-demo-narrated.mp4
+/devpost/assets/limnim-demo-cues.json

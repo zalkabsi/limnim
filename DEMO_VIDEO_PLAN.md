@@ -1,49 +1,47 @@
 # Demo Video Plan
 
-**State:** A captioned sample-mode draft was recorded from the production build at `devpost/assets/limnim-demo.mp4` (78.4 seconds); it remains local and is not part of the public repository. It demonstrates the fictional sample, evidence, timeline, and guest reply, but not live extraction. A final public submission video remains pending because the configured OpenAI account has no available credits.
+**Current artifact:** A 78.5-second narrated sample-only preview is available locally at `devpost/assets/limnim-demo-narrated.mp4`. It uses fictional Tokyo data, matches the public Render demo, and makes no live analysis request. The video and its silent source are ignored by Git and have not been uploaded.
 
 ## Official constraints
 
-- The official rules say the video must be **under three minutes**, show the project functioning on its intended device, be publicly visible on YouTube or Vimeo, and be linked in the Devpost form.
-- The challenge overview describes a 1-to-3-minute screen recording. Target **2:00–2:40** to satisfy both statements.
-- Do not include third-party trademarks, copyrighted music, or other material without permission. Use fictional booking details only; never show `.env.local`, an API key, real confirmation numbers, names, or other personal details.
-- The public project must remain available through the end of judging.
+- The video must be under three minutes, show the project working, be publicly visible on YouTube or Vimeo, and be linked in the Devpost form.
+- The challenge overview describes a 1-to-3-minute screen recording. The current preview is 78.5 seconds.
+- Avoid unauthorized marks, copyrighted music, real booking details, `.env.local`, and API keys. Keep project claims consistent with the sample-only footage.
+- Keep the public project available through the end of judging.
 
-Sources: [official rules](https://learn-ai-basics.devpost.com/rules), [challenge overview](https://learn-ai-basics.devpost.com/).
+Sources: [official rules](https://learn-ai-basics.devpost.com/rules) and [challenge overview](https://learn-ai-basics.devpost.com/).
 
-## Readiness gates before recording
+## Sample-only recording workflow
 
-1. Restore available credits on an authorized OpenAI account and successfully complete a live analysis. The current account returned `provider_quota_exhausted`; mocked tests are not enough for this step.
-2. Run lint, typecheck, unit, integration, browser, and production-build checks on the final code.
-3. Confirm the submission copy and the required Skill Pack answer with the entrant.
-4. Confirm the public repository and entry fields are ready.
-5. Only then run the live recorder, review the resulting file, upload it publicly, and add its URL to Devpost.
+The sample preview needs Node.js, npm, Chromium, system `ffmpeg`, and the Python dependencies in `devpost/requirements-demo.txt`. It does not need an OpenAI key or Playwright's downloaded ffmpeg helper.
 
-## Suggested sequence
+```sh
+python3 -m pip install --upgrade --target /tmp/limnim-demo-python -r devpost/requirements-demo.txt
+NEXT_PUBLIC_SAMPLE_DEMO=true NODE_USE_ENV_PROXY=1 npm run dev
+```
 
-| Time | Screen action | Point to make |
-|---|---|---|
-| 0:00–0:15 | Open the workspace and state the front-desk cancellation question. | Limnim prepares a clear, evidence-linked reply from the hotel's policy. |
-| 0:15–0:35 | Load the clearly labelled Tokyo sample and review the guest response. | The sample works without an API request; the response shows its quote and estimate caveat. |
-| 0:35–1:30 | Paste a fictional policy with one strict-after and one inclusive deadline, enter fictional reservation details, and run live analysis. | AI extracts language, the app verifies each quote and boundary, and deterministic code computes the result. |
-| 1:30–1:55 | Copy or review the response, then move the timeline through the exact strict-after boundary and one minute later. | The old penalty remains active at the strict boundary; the reply and amounts update locally after it. |
-| 1:55–2:20 | Inspect the supporting quote, then submit a relative or ambiguous rule. | Unsupported rules remain uncertain and produce no estimate or guest response. |
-| 2:25–2:40 | State the boundary and close on the product name. | This is an estimate from supplied text, not a guaranteed refund or legal conclusion. |
+In a second terminal, run:
 
-## Recording environment
+```sh
+npm run demo:sample
+PYTHONPATH=/tmp/limnim-demo-python python3 devpost/render-narrated-demo.py \
+  devpost/assets/limnim-demo.mp4 devpost/assets/limnim-demo-cues.json --sample
+```
 
-- Node.js 20.9 or newer (the repository was verified with Node.js 24.19.0), npm, the repository, and a Chromium browser.
-- Copy `.env.example` to `.env.local` and set a server-side OpenAI API key with available API usage. Never show that file on screen.
-- Start locally with `NODE_USE_ENV_PROXY=1 npm run dev` in managed environments that require the configured proxy. The Tokyo sample does not need the key.
-- `npm run demo:live` is the existing live recording workflow. Run it only during the final video task; it overwrites `devpost/assets/limnim-demo-narrated.mp4`.
-- The two previously committed MP4s predate the Limnim rebrand and staff-response workflow; do not submit them as the final demo. The local `limnim-demo.mp4` is a captioned sample-mode draft, not a live-extraction video.
+The recorder requires the sample-demo notice, confirms that the live form is absent, and fails if it sends an `/api/analyze` request. It captures Chromium frames and uses `ffmpeg` from `PATH` to create the silent source. The narration renderer adds synthetic English voiceover. All generated media remains local and ignored by Git.
 
-## Review checklist for the final artifact
+## Preview content
 
-- Runtime is at least 1:00 and strictly under 3:00.
-- The browser UI and key interaction are legible at normal playback size.
-- The live flow succeeded during this recording, and the sample, exact thresholds, source quotes, and uncertainty are represented accurately.
-- No API key, personal booking information, unlicensed logo, trademark, or copyrighted music appears.
-- Audio/captions are clear; include English translation if any submitted content is not in English.
-- Video is public on YouTube or Vimeo and the URL is saved in the Devpost form.
-- Playback works without sign-in or access restrictions through judging.
+1. Open Limnim with the interactive sample-demo notice and fictional Tokyo booking.
+2. Show the refund and penalty summary, copyable staff reply, policy quote, and estimate caveat.
+3. Move to the first inclusive threshold and show the $600 refund / $600 penalty.
+4. Move to the final threshold and show the $0 refund / $1,200 penalty and supporting evidence.
+5. Close by noting the booking is fictional and the estimate is not a confirmed hotel refund.
+
+The preview does not demonstrate live AI extraction. Verify live analysis separately before making claims that it works. The separate `demo:live` recorder requires an authorized account with available credits and Playwright's ffmpeg capture helper; it overwrites the same narrated output path.
+
+## Review before any upload
+
+- Check that the sample notice, numbers, timeline, evidence, captions, and narration match the current demo.
+- Confirm the video remains under three minutes and plays without errors.
+- Upload only after entrant review, then add the public video URL to Devpost. No upload or publication was performed during this audit.

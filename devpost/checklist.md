@@ -49,7 +49,7 @@ Progress note: The learner asked to continue past the first two hands-on checkpo
 
 ## Final Review
 
-- [x] Final code review complete — identified issues fixed and verified. The Limnim source and refreshed assets are published in commit `8652ff3`; public final-video hosting and Devpost submission remain pending.
+- [x] Earlier code review complete — the public baseline is commit `20624c8`. The October 20 audit has additional local fixes that remain uncommitted; video publication and Devpost submission are still entrant actions.
 
 ## Code Tour and App Map
 
@@ -92,7 +92,7 @@ Checked against the [official rules](https://learn-ai-basics.devpost.com/rules),
 ### Submission materials and form
 
 - [x] English project-description draft is ready at `devpost/submission-copy.md`; review the first-person learning paragraph so it matches the entrant's experience.
-- [ ] Record and review the **1 to under 3 minute** live-extraction demo with `npm run demo:live`, then upload it publicly to YouTube or Vimeo. The recording should show the fictional staff workflow, live AI extraction, a copyable evidence-linked reply, inclusive and strict-after thresholds, and an ambiguous policy that stays unresolved. The public upload is still pending.
+- [ ] Review the local narrated sample-only preview at `devpost/assets/limnim-demo-narrated.mp4`. It matches the public Render demo and does not show live AI extraction. If suitable, upload it publicly to YouTube or Vimeo and add its URL; keep any live-analysis claims separate until a successful funded request is verified.
 - [ ] Include the public video URL in the submission form.
 - [ ] Answer the required short-form question describing how the Devpost Learn Skill Pack was used.
 - [x] Entrant confirmed completion of the required age-of-majority checkbox.
@@ -106,19 +106,20 @@ The rules require a public repository and demo video; they do not list deploymen
 
 This update records the current workspace review. Earlier checkboxes and learner confirmations above are historical attestations; they do not independently verify the current Devpost account or submission form.
 
-- The final verification results are recorded in `TEST_REPORT.md`: clean install, lint, typecheck, unit, API integration, production build, and nine browser tests against both dev and production pass. Public `main` includes the tested source in commit `8652ff3`.
-- The no-credential Tokyo sample works end to end. The latest live request returned `provider_quota_exhausted` from the provider's HTTP 429; a successful live extraction remains unverified.
+- The final verification results are recorded in `TEST_REPORT.md`: install, lint, typecheck, 33 unit tests, 12 API integration tests, nine standard browser flows, the sample-only browser flow, and the sample-mode production build pass. Public `main` points to `20624c8`; this audit's source and documentation fixes remain local and unpublished.
+- The public Render page returned HTTP 200 with the Tokyo sample notice; its `/api/analyze` endpoint returned HTTP 503 `sample_demo_only`. Local production sample mode also passed without an OpenAI key.
+- The last recorded live provider request returned HTTP 429 `credit_balance_exhausted`; this audit used sample mode and did not attempt live extraction.
 - Eligibility, registration, project provenance, ownership, team status where applicable, age-of-majority confirmation, the Skill Pack answer, and the current “Try it out” field require entrant review in Devpost.
-- A captioned 78-second sample-mode draft is local-only at `devpost/assets/limnim-demo.mp4`; it is not in the public repo and does not show live extraction. The public final video remains pending until a funded live run succeeds.
+- A 78.5-second narrated sample-only preview is local-only at `devpost/assets/limnim-demo-narrated.mp4` and is ignored by Git. It is not uploaded. The old RefundCurve recordings and stale screenshot were removed/refreshed in the local audit changes.
 
 ## Limnim staff-response extension — October 20, 2026
 
-- [x] Rebrand the app, package, written materials, recording scripts, and repository remote as Limnim. Public `main` now includes the source and refreshed images in commit `8652ff3`.
+- [x] Rebrand the app, package, written materials, recording scripts, and repository remote as Limnim. Public `main` is at `20624c8`; audit fixes remain uncommitted.
 - [x] Add a deterministic, copyable front-desk response using the selected time, local estimate, exact policy quote, and estimate disclaimer. The response is available for the fictional sample and calculable live results; it makes no AI request and sends no message.
 - [x] Preserve strict `after` semantics at the exact deadline and validate boundary wording against the quoted source.
 - [x] Refresh the README sample screenshot and 3:2 thumbnail from the local production build.
-- [x] Verify lint, type checking, 33 unit tests, 12 API integration tests, 9 Chromium flows against the dev server, 9 Chromium flows against the production build, and the production build. The final results are in `TEST_REPORT.md`.
+- [x] Verify lint, type checking, 33 unit tests, 12 API integration tests, 9 standard Chromium flows, the sample-only Chromium flow against dev and production, and the sample-mode production build. The final results are in `TEST_REPORT.md`.
 - [ ] Restore available OpenAI API credits and verify one live extraction. The previously checked account returned HTTP 429 `credit_balance_exhausted`.
-- [x] Publish the updated repository state to public `main`.
+- [x] Publish the sample-only Render configuration to public `main` in commit `20624c8`.
 - [ ] Verify the current repository URL in Devpost's “Try it out” field.
-- [ ] Verify live extraction after restoring API credits, then record and submit the final public demo video.
+- [ ] Review the local sample-only video, publish the audited repository changes when appropriate, and add a reviewed video URL to Devpost. Verify live extraction separately before making live-analysis claims.

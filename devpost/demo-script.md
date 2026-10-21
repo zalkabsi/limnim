@@ -1,4 +1,4 @@
-# Limnim Live Demo
+# Limnim Demo Scripts
 
 ## Narrated sample-mode preview
 
@@ -6,7 +6,7 @@
 
 ```sh
 python3 -m pip install --upgrade --target /tmp/limnim-demo-python -r devpost/requirements-demo.txt
-NODE_USE_ENV_PROXY=1 npm run dev
+NEXT_PUBLIC_SAMPLE_DEMO=true NODE_USE_ENV_PROXY=1 npm run dev
 # In a second terminal:
 npm run demo:sample
 # Then render the narration:
@@ -14,11 +14,11 @@ PYTHONPATH=/tmp/limnim-demo-python python3 devpost/render-narrated-demo.py \
   devpost/assets/limnim-demo.mp4 devpost/assets/limnim-demo-cues.json --sample
 ```
 
-This preview does not perform live AI extraction and is not the final hackathon demo. The narration explicitly describes the sample data and its limitations.
-
-The recording uses two fictional policies and booking details. The first request demonstrates live AI extraction for a Tokyo booking; the second shows that a discretionary, relative deadline remains unresolved. The script checks the API request contains only the policy text and property time zone, verifies verbatim evidence and the calculated timeline, and checks that no estimate appears for the ambiguous policy.
+This sample-only preview matches the public Render demo. It does not demonstrate live AI extraction; the narration describes the fictional data and its limits.
 
 ## Record the final demo
+
+The separate live recording uses two fictional policies and booking details. The first request demonstrates live AI extraction for a Tokyo booking; the second shows that a discretionary, relative deadline remains unresolved. The script checks that the API request contains only the policy text and property time zone, verifies verbatim evidence and the calculated timeline, and checks that no estimate appears for the ambiguous policy.
 
 Install the dependencies and start the app with the workspace proxy enabled:
 
@@ -36,7 +36,7 @@ PYTHONPATH=/tmp/limnim-demo-python npm run demo:live
 
 The live recording requires a funded OpenAI API account bound to the runtime secret `OPENAI_API_KEY`. Keep the server running. The script records captions, synthesizes narration, checks that the resulting MP4 has audio and video and lasts between one and three minutes, and only then replaces `devpost/assets/limnim-demo-narrated.mp4`. It never reads a real booking, uses a real policy, or displays the API key.
 
-The recorder uses Playwright's ffmpeg helper when available and falls back to `/usr/bin/ffmpeg` on Linux. On another platform, install the helper with `npx playwright install ffmpeg`.
+The live recorder needs Playwright's ffmpeg capture helper (`npx playwright install ffmpeg`) and an `ffmpeg` command on `PATH` for final encoding. The sample recorder captures Chromium frames directly and only needs `ffmpeg` on `PATH`.
 
 ## Scene outline
 
