@@ -1,6 +1,7 @@
 # Implementation Plan
 
-**Last updated:** October 20, 2026  
+**Last updated:** October 22, 2026
+
 This is the working audit record; resolved tasks include verification evidence, and external or entrant-controlled blockers remain explicit.
 
 ## P0 — Submission blockers
@@ -9,7 +10,7 @@ This is the working audit record; resolved tasks include verification evidence, 
 |---|---|---|---|
 | The bound OpenAI account has no available credits. A real Responses API request returned HTTP 429 `credit_balance_exhausted`. | `src/lib/ai/extract-policy.ts`, `/api/analyze`, submission claims | Use an authorized account with available credits and verify one live extraction before describing it as working in the final entry/video. | **Blocked externally.** App now returns targeted, credential-safe guidance. Mocked route tests do not verify provider availability. |
 | Registration and several mandatory submission form fields are entrant-account actions. | Devpost entry | Entrant must verify eligibility, register, review the Skill Pack answer, check the age-of-majority item, confirm the “Try it out” repository URL, and submit before the cutoff. | **Blocked outside this workspace.** See `HACKATHON_COMPLIANCE.md`. |
-| Devpost needs a public demo video and URL; live extraction remains unverified because provider credits were exhausted on the last recorded attempt. | `devpost/assets/`, Devpost submission | Review the sample-only video against the deployed demo, then decide whether it is suitable to upload. Verify live analysis before making claims that it works. | **Partially complete.** A narrated sample-only preview is generated locally and matches the public demo; it is not uploaded and does not demonstrate live AI extraction. |
+| Devpost needs a public demo video and URL; live extraction remains unverified because provider credits were exhausted on the last recorded attempt. | `devpost/assets/`, Devpost submission | Confirm the supplied YouTube link is publicly playable and matches the reviewed sample-only video, add it to Devpost, and verify live analysis before making claims that it works. | **Partially complete.** The local 78.5-second narrated sample-only preview was reviewed and decoded; the entrant supplied <https://youtu.be/q6SJWiaujMI>. YouTube is excluded by the enforced workspace egress policy, so the upload could not be checked. |
 | New-project provenance, entrant eligibility, ownership, and any team representative status cannot be established from source files. | Entrant attestations | Entrant confirms facts in the Devpost account and discloses any pre-existing code/work if relevant. | **Entrant action.** The repository contains prior attestations, not independent proof. |
 
 ## P1 — Reliability and submission materials

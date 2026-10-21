@@ -49,7 +49,7 @@ Progress note: The learner asked to continue past the first two hands-on checkpo
 
 ## Final Review
 
-- [x] Earlier code review complete — its baseline was commit `20624c8`. The October 20 audit fixes are published in commit `4c0ef44`; video publication and Devpost submission are still entrant actions.
+- [x] Earlier code review complete — its baseline was commit `20624c8`. The October 20 audit fixes are published in commit `4c0ef44`; the entrant has since supplied the YouTube link, while the Devpost form and submission remain entrant actions.
 
 ## Code Tour and App Map
 
@@ -92,8 +92,9 @@ Checked against the [official rules](https://learn-ai-basics.devpost.com/rules),
 ### Submission materials and form
 
 - [x] English project-description draft is ready at `devpost/submission-copy.md`; review the first-person learning paragraph so it matches the entrant's experience.
-- [ ] Review the local narrated sample-only preview at `devpost/assets/limnim-demo-narrated.mp4`. It matches the public Render demo and does not show live AI extraction. If suitable, upload it publicly to YouTube or Vimeo and add its URL; keep any live-analysis claims separate until a successful funded request is verified.
-- [ ] Include the public video URL in the submission form.
+- [x] Review the local narrated sample-only preview at `devpost/assets/limnim-demo-narrated.mp4`. It is 78.5 seconds, decodes successfully, and matches the public Render demo without showing live AI extraction.
+- [x] Entrant supplied the intended YouTube video URL: <https://youtu.be/q6SJWiaujMI>.
+- [ ] Confirm the YouTube upload is publicly playable and is the reviewed sample-only clip, then include its URL in the Devpost form. This workspace cannot reach YouTube because its enforced HTTP egress allowlist excludes YouTube.
 - [ ] Answer the required short-form question describing how the Devpost Learn Skill Pack was used.
 - [x] Entrant confirmed completion of the required age-of-majority checkbox.
 - [ ] Register for the hackathon.
@@ -110,7 +111,7 @@ This update records the current workspace review. Earlier checkboxes and learner
 - The public Render page returned HTTP 200 with the Tokyo sample notice; its `/api/analyze` endpoint returned HTTP 503 `sample_demo_only`. Local production sample mode also passed without an OpenAI key.
 - The last recorded live provider request returned HTTP 429 `credit_balance_exhausted`; this audit used sample mode and did not attempt live extraction.
 - Eligibility, registration, project provenance, ownership, team status where applicable, age-of-majority confirmation, the Skill Pack answer, and the current “Try it out” field require entrant review in Devpost.
-- A 78.5-second narrated sample-only preview is local-only at `devpost/assets/limnim-demo-narrated.mp4` and is ignored by Git. It is not uploaded. The old RefundCurve recordings were removed and the screenshot refreshed in commit `4c0ef44`.
+- A 78.5-second narrated sample-only preview is local-only at `devpost/assets/limnim-demo-narrated.mp4` and is ignored by Git. The entrant supplied <https://youtu.be/q6SJWiaujMI> as the upload link; public playback and matching contents still need confirmation. The old RefundCurve recordings were removed and the screenshot refreshed in commit `4c0ef44`.
 
 ## Limnim staff-response extension — October 20, 2026
 
@@ -122,4 +123,4 @@ This update records the current workspace review. Earlier checkboxes and learner
 - [ ] Restore available OpenAI API credits and verify one live extraction. The previously checked account returned HTTP 429 `credit_balance_exhausted`.
 - [x] Publish the sample-only Render configuration to public `main` in commit `20624c8`.
 - [ ] Verify the current repository URL in Devpost's “Try it out” field.
-- [ ] Review the local sample-only video, upload it publicly if suitable, and add its URL to Devpost. Verify live extraction separately before making live-analysis claims.
+- [ ] Confirm the supplied video link is publicly playable and matches the reviewed sample-only preview, then add it to Devpost. Verify live extraction separately before making live-analysis claims.

@@ -38,4 +38,8 @@ The Playwright ffmpeg helper download returned HTTP 403 `Domain forbidden` throu
 
 The last recorded live OpenAI request in prior project notes returned HTTP 429 `credit_balance_exhausted`. This audit did not retry live analysis; a successful live extraction remains unverified.
 
-Public `main` includes the audit fixes, refreshed screenshot, and removal of the old RefundCurve MP4s. The narrated sample video remains local and unuploaded as requested. Entrant-controlled Devpost fields and video publication are still outstanding.
+Public `main` includes the audit fixes, refreshed screenshot, and removal of the old RefundCurve MP4s. At the October 20 audit, the narrated sample video remained local and unuploaded. The entrant later supplied a YouTube URL; current Devpost fields remain unverified.
+
+## Video link follow-up — October 22, 2026
+
+The entrant supplied <https://youtu.be/q6SJWiaujMI> as the uploaded demo URL. This workspace's enforced HTTP egress allowlist does not include YouTube, so the URL's playback, visibility, and uploaded contents could not be independently checked. The local 78.5-second preview described above remains the version reviewed against the current sample-only demo. Confirm the public link and save it in the Devpost video field.

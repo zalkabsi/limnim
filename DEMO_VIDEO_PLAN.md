@@ -1,6 +1,8 @@
 # Demo Video Plan
 
-**Current artifact:** A 78.5-second narrated sample-only preview is available locally at `devpost/assets/limnim-demo-narrated.mp4`. It uses fictional Tokyo data, matches the public Render demo, and makes no live analysis request. The video and its silent source are ignored by Git and have not been uploaded.
+**Reviewed local artifact:** A 78.5-second narrated sample-only preview is available at `devpost/assets/limnim-demo-narrated.mp4`. It uses fictional Tokyo data, matches the public Render demo, and makes no live analysis request. The video and its silent source are ignored by Git.
+
+**YouTube URL supplied by the entrant:** <https://youtu.be/q6SJWiaujMI>. The local preview was reviewed and decoded successfully. The uploaded YouTube copy could not be checked from this workspace because YouTube is not in the enforced HTTP egress allowlist; confirm that this URL is publicly playable and points to the reviewed sample-only recording before entering it in Devpost.
 
 ## Official constraints
 
@@ -40,8 +42,8 @@ The recorder requires the sample-demo notice, confirms that the live form is abs
 
 The preview does not demonstrate live AI extraction. Verify live analysis separately before making claims that it works. The separate `demo:live` recorder requires an authorized account with available credits and Playwright's ffmpeg capture helper; it overwrites the same narrated output path.
 
-## Review before any upload
+## Review and submission handoff
 
-- Check that the sample notice, numbers, timeline, evidence, captions, and narration match the current demo.
-- Confirm the video remains under three minutes and plays without errors.
-- Upload only after entrant review, then add the public video URL to Devpost. No upload or publication was performed during this audit.
+- The local preview's sample notice, figures, timeline, evidence, captions, and narration were checked against the current demo; the full file decoded without errors and runs for 78.5 seconds.
+- The entrant supplied a YouTube link. Playback, visibility, and whether the upload is the same reviewed file could not be confirmed under the workspace's enforced egress policy.
+- Confirm public playback and add the supplied URL to the Devpost video field. The video itself was not uploaded or changed by this audit.

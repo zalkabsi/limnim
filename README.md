@@ -39,6 +39,8 @@ The first version calculates explicit local date-and-time cancellation threshold
 
 `render.yaml` defines a free Render web service for the fictional Tokyo workflow. It opens directly into the interactive sample and disables the live analysis UI and API route. No OpenAI key is needed or configured. Free Render services can sleep during inactivity, so the first visit after a quiet period may take a little longer. Create the service from the Render dashboard with **New → Blueprint** and select this repository.
 
+**Narrated walkthrough:** [Watch the sample demo on YouTube](https://youtu.be/q6SJWiaujMI). It presents the fictional Tokyo workflow in sample mode; live analysis is not demonstrated.
+
 The local app can run live policy analysis with an OpenAI key. Before exposing live analysis to the public internet, add abuse and usage controls for the endpoint. The official hackathon rules require a runnable project, a public source repository, and a demonstration video; they do not require a public website deployment. See [HACKATHON_COMPLIANCE.md](HACKATHON_COMPLIANCE.md).
 
 ## Checks
@@ -61,7 +63,7 @@ The integration tests mock OpenAI and do not need an API key. Playwright uses Ch
 - [Implementation plan and remaining blockers](IMPLEMENTATION_PLAN.md)
 - [Test report](TEST_REPORT.md)
 - [Devpost submission draft](SUBMISSION.md)
-- [Final video plan](DEMO_VIDEO_PLAN.md) — planning only; record the video after every other item is complete.
+- [Demo video review and recording notes](DEMO_VIDEO_PLAN.md)
 
 ## Demo outline
 

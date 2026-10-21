@@ -31,13 +31,13 @@ Confirm that this accurately describes which skills were run and how they inform
 ## Repository and try-it-out link
 
 - Repository URL: <https://github.com/zalkabsi/limnim>
-- Public `main` includes the audit fixes and sample-only Render configuration. The narrated preview remains local for entrant review and upload.
+- Public `main` includes the audit fixes and sample-only Render configuration. The narrated preview remains local and ignored by Git; the supplied YouTube link is listed below.
 - “Try it out” field: use the same public repository URL as required by the published submission update.
 - Deployment URL: <https://limnim-sample-demo.onrender.com>. It opens the fictional Tokyo sample and disables live analysis; no OpenAI key is required. The verified rules do not require a separate public website deployment. Local setup remains in [README.md](README.md).
 
 ## Video field
 
-**Entrant review and publication pending.** A local-only narrated sample-mode preview is at `devpost/assets/limnim-demo-narrated.mp4`; it matches the public demo and uses fictional data without live extraction. The file is ignored by Git and has not been uploaded. Review the video and confirm it is suitable for the submission before publishing it to YouTube or Vimeo and entering its URL. Do not claim successful live extraction until a funded, authorized request has passed. See [DEMO_VIDEO_PLAN.md](DEMO_VIDEO_PLAN.md).
+**Video URL supplied:** [https://youtu.be/q6SJWiaujMI](https://youtu.be/q6SJWiaujMI). The intended recording is a narrated, sample-only walkthrough using fictional Tokyo data; it does not demonstrate live extraction. The local preview at `devpost/assets/limnim-demo-narrated.mp4` was reviewed and decoded successfully. YouTube playback and the uploaded copy could not be independently checked from this workspace because YouTube is outside its enforced HTTP egress allowlist. Confirm the link is publicly playable and enter it in the Devpost video field. Do not claim successful live extraction until a funded, authorized request has passed. See [DEMO_VIDEO_PLAN.md](DEMO_VIDEO_PLAN.md).
 
 ## Required account checks
 
