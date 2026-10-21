@@ -31,7 +31,7 @@ Confirm that this accurately describes which skills were run and how they inform
 ## Repository and try-it-out link
 
 - Repository URL: <https://github.com/zalkabsi/limnim>
-- Public `main` points to commit `4c0ef44`, which includes the audit fixes and sample-only Render configuration. The narrated preview remains local for entrant review and upload.
+- Public `main` includes the audit fixes and sample-only Render configuration. The narrated preview remains local for entrant review and upload.
 - “Try it out” field: use the same public repository URL as required by the published submission update.
 - Deployment URL: <https://limnim-sample-demo.onrender.com>. It opens the fictional Tokyo sample and disables live analysis; no OpenAI key is required. The verified rules do not require a separate public website deployment. Local setup remains in [README.md](README.md).
 

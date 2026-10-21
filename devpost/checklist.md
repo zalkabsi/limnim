@@ -106,7 +106,7 @@ The rules require a public repository and demo video; they do not list deploymen
 
 This update records the current workspace review. Earlier checkboxes and learner confirmations above are historical attestations; they do not independently verify the current Devpost account or submission form.
 
-- The final verification results are recorded in `TEST_REPORT.md`: install, lint, typecheck, 33 unit tests, 12 API integration tests, nine standard browser flows, the sample-only browser flow, and the sample-mode production build pass. Public `main` includes this audit in commit `4c0ef44`.
+- The final verification results are recorded in `TEST_REPORT.md`: install, lint, typecheck, 33 unit tests, 12 API integration tests, nine standard browser flows, the sample-only browser flow, and the sample-mode production build pass. Public `main` includes this audit.
 - The public Render page returned HTTP 200 with the Tokyo sample notice; its `/api/analyze` endpoint returned HTTP 503 `sample_demo_only`. Local production sample mode also passed without an OpenAI key.
 - The last recorded live provider request returned HTTP 429 `credit_balance_exhausted`; this audit used sample mode and did not attempt live extraction.
 - Eligibility, registration, project provenance, ownership, team status where applicable, age-of-majority confirmation, the Skill Pack answer, and the current “Try it out” field require entrant review in Devpost.
@@ -114,7 +114,7 @@ This update records the current workspace review. Earlier checkboxes and learner
 
 ## Limnim staff-response extension — October 20, 2026
 
-- [x] Rebrand the app, package, written materials, recording scripts, and repository remote as Limnim. Public `main` includes the audit cleanup in commit `4c0ef44`.
+- [x] Rebrand the app, package, written materials, recording scripts, and repository remote as Limnim. Public `main` includes the audit cleanup.
 - [x] Add a deterministic, copyable front-desk response using the selected time, local estimate, exact policy quote, and estimate disclaimer. The response is available for the fictional sample and calculable live results; it makes no AI request and sends no message.
 - [x] Preserve strict `after` semantics at the exact deadline and validate boundary wording against the quoted source.
 - [x] Refresh the README sample screenshot and 3:2 thumbnail from the local production build.

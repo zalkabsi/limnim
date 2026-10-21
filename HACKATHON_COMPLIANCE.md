@@ -7,7 +7,7 @@
 
 The official rules, challenge overview, Resources page, and published submission updates were checked. The official rules state they take precedence if other hackathon materials conflict with them. The matrix below separates project evidence from actions that can only be verified in the entrant's Devpost account or through the entrant's own attestations.
 
-Public `main` points to commit `4c0ef44`, which includes the audit fixes and sample-only Render service configuration. The last recorded OpenAI request exhausted its credits; this audit used sample mode and did not make a live provider request.
+Public `main` includes the audit fixes and sample-only Render service configuration. The last recorded OpenAI request exhausted its credits; this audit used sample mode and did not make a live provider request.
 
 ## Requirements matrix
 
