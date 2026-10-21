@@ -49,7 +49,7 @@ Progress note: The learner asked to continue past the first two hands-on checkpo
 
 ## Final Review
 
-- [x] Earlier code review complete — the public baseline is commit `20624c8`. The October 20 audit has additional local fixes that remain uncommitted; video publication and Devpost submission are still entrant actions.
+- [x] Earlier code review complete — its baseline was commit `20624c8`. The October 20 audit fixes are published in commit `4c0ef44`; video publication and Devpost submission are still entrant actions.
 
 ## Code Tour and App Map
 
@@ -106,15 +106,15 @@ The rules require a public repository and demo video; they do not list deploymen
 
 This update records the current workspace review. Earlier checkboxes and learner confirmations above are historical attestations; they do not independently verify the current Devpost account or submission form.
 
-- The final verification results are recorded in `TEST_REPORT.md`: install, lint, typecheck, 33 unit tests, 12 API integration tests, nine standard browser flows, the sample-only browser flow, and the sample-mode production build pass. Public `main` points to `20624c8`; this audit's source and documentation fixes remain local and unpublished.
+- The final verification results are recorded in `TEST_REPORT.md`: install, lint, typecheck, 33 unit tests, 12 API integration tests, nine standard browser flows, the sample-only browser flow, and the sample-mode production build pass. Public `main` includes this audit in commit `4c0ef44`.
 - The public Render page returned HTTP 200 with the Tokyo sample notice; its `/api/analyze` endpoint returned HTTP 503 `sample_demo_only`. Local production sample mode also passed without an OpenAI key.
 - The last recorded live provider request returned HTTP 429 `credit_balance_exhausted`; this audit used sample mode and did not attempt live extraction.
 - Eligibility, registration, project provenance, ownership, team status where applicable, age-of-majority confirmation, the Skill Pack answer, and the current “Try it out” field require entrant review in Devpost.
-- A 78.5-second narrated sample-only preview is local-only at `devpost/assets/limnim-demo-narrated.mp4` and is ignored by Git. It is not uploaded. The old RefundCurve recordings and stale screenshot were removed/refreshed in the local audit changes.
+- A 78.5-second narrated sample-only preview is local-only at `devpost/assets/limnim-demo-narrated.mp4` and is ignored by Git. It is not uploaded. The old RefundCurve recordings were removed and the screenshot refreshed in commit `4c0ef44`.
 
 ## Limnim staff-response extension — October 20, 2026
 
-- [x] Rebrand the app, package, written materials, recording scripts, and repository remote as Limnim. Public `main` is at `20624c8`; audit fixes remain uncommitted.
+- [x] Rebrand the app, package, written materials, recording scripts, and repository remote as Limnim. Public `main` includes the audit cleanup in commit `4c0ef44`.
 - [x] Add a deterministic, copyable front-desk response using the selected time, local estimate, exact policy quote, and estimate disclaimer. The response is available for the fictional sample and calculable live results; it makes no AI request and sends no message.
 - [x] Preserve strict `after` semantics at the exact deadline and validate boundary wording against the quoted source.
 - [x] Refresh the README sample screenshot and 3:2 thumbnail from the local production build.
@@ -122,4 +122,4 @@ This update records the current workspace review. Earlier checkboxes and learner
 - [ ] Restore available OpenAI API credits and verify one live extraction. The previously checked account returned HTTP 429 `credit_balance_exhausted`.
 - [x] Publish the sample-only Render configuration to public `main` in commit `20624c8`.
 - [ ] Verify the current repository URL in Devpost's “Try it out” field.
-- [ ] Review the local sample-only video, publish the audited repository changes when appropriate, and add a reviewed video URL to Devpost. Verify live extraction separately before making live-analysis claims.
+- [ ] Review the local sample-only video, upload it publicly if suitable, and add its URL to Devpost. Verify live extraction separately before making live-analysis claims.

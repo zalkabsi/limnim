@@ -24,7 +24,7 @@ The sample-mode browser check ran at 390×844 and confirmed there is no horizont
 
 The live page at <https://limnim-sample-demo.onrender.com> returned HTTP 200 and included the “Interactive sample demo” notice and Tokyo sample. A POST to `/api/analyze` returned HTTP 503 with code `sample_demo_only` and the expected user-facing message. The live check succeeded through the configured workspace proxy. The Render service config sets `NEXT_PUBLIC_SAMPLE_DEMO=true` and contains no OpenAI key requirement.
 
-The same checks passed against the local production build with `OPENAI_API_KEY` removed. The app does not call OpenAI for the Tokyo example. No Render settings, credentials, deployment, commit, or push were changed during this audit.
+The same checks passed against the local production build with `OPENAI_API_KEY` removed. The app does not call OpenAI for the Tokyo example. No Render settings or credentials were changed. The reviewed repository updates were published to public `main` in commit `4c0ef44`; the live page and sample-only API response were checked again afterward.
 
 ## Screenshot and video
 
@@ -38,4 +38,4 @@ The Playwright ffmpeg helper download returned HTTP 403 `Domain forbidden` throu
 
 The last recorded live OpenAI request in prior project notes returned HTTP 429 `credit_balance_exhausted`. This audit did not retry live analysis; a successful live extraction remains unverified.
 
-The checked-out `origin/main` baseline is commit `20624c8`. Audit fixes, including removal of the old RefundCurve MP4s and the refreshed screenshot, are local and uncommitted. Because this audit did not push, the public repository still needs those local changes published before it reflects the reviewed tree. The local sample video remains unuploaded as requested. Entrant-controlled Devpost fields and video publication are still outstanding.
+Public `main` now points to commit `4c0ef44`, which includes the audit fixes, refreshed screenshot, and removal of the old RefundCurve MP4s. The narrated sample video remains local and unuploaded as requested. Entrant-controlled Devpost fields and video publication are still outstanding.
